@@ -1,0 +1,51 @@
+---
+/**
+ * A window frame that holds a real screenshot of the product.
+ *
+ * `src` is intentionally optional and currently unset everywhere. PHASES.md is
+ * explicit that screenshots must be real captures from the seeded demo archive
+ * and never mocked, so until those exist the frame renders its caption instead
+ * of a drawn imitation of the UI. A picture of an interface we assembled in CSS
+ * would be a claim about a screen the customer will not find in the product.
+ *
+ * Drop a PNG into public/shots/ and pass `src` -- nothing else changes.
+ */
+interface Props {
+  src?: string;
+  alt?: string;
+  caption: string;
+}
+const { src, alt, caption } = Astro.props;
+---
+
+<figure class="frame">
+  <div class="frame__bar" aria-hidden="true">
+    <span class="frame__dot"></span>
+    <span class="frame__dot"></span>
+    <span class="frame__dot"></span>
+  </div>
+
+  {
+    src ? (
+      <img src={src} alt={alt ?? caption} loading="lazy" decoding="async" width="1280" height="800" />
+    ) : (
+      <div class="frame__body">
+        <span class="frame__caption">{caption}</span>
+      </div>
+    )
+  }
+</figure>
+
+<style>
+  .frame {
+    margin: 0;
+  }
+
+  .frame__caption {
+    display: inline-block;
+    padding: 9px 16px;
+    border: 1px dashed rgba(240, 237, 230, 0.16);
+    border-radius: var(--r-pill);
+    color: var(--text-tertiary);
+  }
+</style>

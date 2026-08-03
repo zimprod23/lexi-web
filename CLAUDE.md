@@ -51,19 +51,47 @@ talk to it at all. See `docs/API.md`.
 
 ---
 
-## Stack
+## Stack — decided 2026-08-03
 
-**Undecided, deliberately.** Pick it in Phase 1 against the criteria above, not
-before. The bias is towards *less*:
+**Astro 5, static output, zero client framework.** Reasons in `docs/PHASES.md`
+Phase 0; the short version is that Arabic and French are two real URLs built
+from one component tree, which a single page with a JS toggle cannot be.
 
-- **Astro** or plain **Vite + TypeScript** if the site stays mostly static.
-- **Tailwind** for styling, to match the desktop app's tokens without inventing
-  a second system.
-- **No React unless a real interaction needs it.** A download button and a form
-  do not.
+- **Plain CSS with custom properties**, not Tailwind. `src/styles/tokens.css`
+  lifts the desktop app's dark scale verbatim and adds the light surfaces this
+  repo needs. The tokens *are* the shared system; a utility framework on three
+  pages would be a second one.
+- **The only JavaScript on the page** is a ~20-line IntersectionObserver that
+  drives the scroll reveal. It degrades to "everything visible" when it cannot
+  run — the hidden state is applied by a class the script itself adds.
+- **No React.** A download button and a form do not need it.
 
-Whatever is chosen, it must produce a static bundle Netlify can serve — no
-server runtime, because there is nothing here worth running a server for.
+### Where things live
+
+```
+src/config.ts        release (null until published), site constants, Turnstile slot
+src/i18n/ar.ts       Arabic — the canonical dictionary; `Dict` is derived from it
+src/i18n/fr.ts       French — typed as `Dict`, so a missing string fails the build
+src/styles/tokens.css   design tokens (dark half = the app's, verbatim)
+src/styles/global.css   reset, type scale, tiles, buttons, reveal, icon sizing
+src/components/Landing.astro   the whole page, once; both routes pass a dictionary
+src/pages/index.astro          Arabic at the apex
+src/pages/fr/index.astro       French
+```
+
+### Two rules the build enforces, learned the hard way
+
+1. **All icon sizing lives in `global.css`, unscoped.** Astro scopes a
+   component's `<style>` to its own elements, so a size written next to the
+   markup that *uses* an icon never reaches the `<svg>` inside `Icon.astro`.
+   That shipped 200px checkmarks once.
+2. **Quantities in Arabic prose must not contain Latin runs.** The bidi
+   algorithm rendered `(64-bit)` as `(bit-64)`. Either spell the unit in Arabic
+   (preferred — it also reads faster for this audience) or isolate it with the
+   `.q` class.
+
+Whatever changes, it must stay a static bundle Netlify can serve — no server
+runtime, because there is nothing here worth running a server for.
 
 ---
 
@@ -101,7 +129,10 @@ Netlify; leave `api.` alone — it is the tunnel.
 
 ## Current Phase
 
-**Phase 0 — nothing built yet.** See `docs/PHASES.md`.
+**Phase 2/3 — the site is built and runs.** Both languages, all sections,
+`astro check` and `npm run build` clean. See `docs/PHASES.md` for what is left:
+real screenshots, a Netlify deploy + DNS, a phone check, and setting
+`VITE_LICENSE_REQUEST_URL` in the desktop app.
 
 The blocking dependency runs the other way from what you would expect: the
 desktop app's `VITE_LICENSE_REQUEST_URL` is currently empty, which means **an

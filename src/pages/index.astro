@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Landing from '../components/Landing.astro';
+import { ar } from '../i18n/ar';
+
+// Arabic sits at the apex, not under /ar/. It is the working language of the
+// audience, so it is the page a shared link opens by default -- French is the
+// translation here, which is the reverse of the usual Moroccan-web habit and
+// deliberate.
+---
+
+<Base t={ar} path="/" altPath="/fr/">
+  <Landing t={ar} home="/" thanksHref="/thanks/" />
+</Base>

@@ -1,0 +1,110 @@
+---
+import type { Dict } from '../i18n/ar';
+import { site } from '../config';
+import '../styles/global.css';
+
+interface Props {
+  t: Dict;
+  title?: string;
+  description?: string;
+  /** Path of this page in the OTHER language, for hreflang + canonical. */
+  altPath: string;
+  path: string;
+}
+
+const { t, title, description, altPath, path } = Astro.props;
+const pageTitle = title ?? t.meta.title;
+const pageDescription = description ?? t.meta.description;
+const canonical = new URL(path, site.url).href;
+const alternate = new URL(altPath, site.url).href;
+const altLang = t.htmlLang === 'ar' ? 'fr' : 'ar';
+---
+
+<!doctype html>
+<html lang={t.htmlLang} dir={t.dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Both languages are first-class URLs, so each one has to declare the
+         other. x-default points at Arabic: it is the audience's language, and
+         the desktop app makes the same choice. -->
+    <link rel="alternate" hreflang={t.htmlLang} href={canonical} />
+    <link rel="alternate" hreflang={altLang} href={alternate} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/', site.url).href} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={t.localeTag.replace('-', '_')} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#0B1422" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Runs before first paint so the reveal system's hidden state is applied
+         in the same frame the markup lands. Doing it from the deferred script
+         at the end of <body> would show every section, then hide it, then
+         animate it back in -- a visible flash of the whole page. -->
+    <script is:inline>
+      document.documentElement.classList.add('js-reveal');
+    </script>
+  </head>
+
+  <body>
+    <a class="skip" href="#main">{t.nav.home}</a>
+    <slot />
+
+    <script is:inline>
+      (function () {
+        var nodes = document.querySelectorAll('[data-reveal]');
+        // No observer (or no JS at all) must not mean no content: drop the
+        // class the hidden state hangs off and the page is simply static.
+        if (!('IntersectionObserver' in window)) {
+          document.documentElement.classList.remove('js-reveal');
+          return;
+        }
+        var io = new IntersectionObserver(
+          function (entries) {
+            for (var i = 0; i < entries.length; i++) {
+              if (entries[i].isIntersecting) {
+                entries[i].target.classList.add('is-in');
+                io.unobserve(entries[i].target);
+              }
+            }
+          },
+          // A positive bottom margin grows the root box, so a section starts
+          // animating just before it is scrolled into view and has finished by
+          // the time it is actually being read. A negative value here (the
+          // instinctive choice) does the opposite and is what made fast
+          // scrolling land on empty sections.
+          { rootMargin: '0px 0px 10% 0px', threshold: 0.02 }
+        );
+        for (var i = 0; i < nodes.length; i++) io.observe(nodes[i]);
+      })();
+    </script>
+
+    <style is:global>
+      .skip {
+        position: absolute;
+        inset-block-start: -60px;
+        inset-inline-start: 12px;
+        z-index: 100;
+        background: var(--gold);
+        color: var(--bg-0);
+        padding: 10px 18px;
+        border-radius: var(--r-pill);
+        text-decoration: none;
+        font-weight: 600;
+        transition: inset-block-start 160ms var(--ease);
+      }
+      .skip:focus {
+        inset-block-start: 12px;
+      }
+    </style>
+  </body>
+</html>

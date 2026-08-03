@@ -1,0 +1,48 @@
+---
+/**
+ * Inline SVG only. No icon package, no sprite request, no CDN (CLAUDE.md rule
+ * 3) -- six glyphs do not justify a dependency, and inlined they cost nothing
+ * on a slow connection.
+ *
+ * Stroke-based at 24x24 to match the desktop app's lucide-react set, so the
+ * site's marks and the product's icons read as one family.
+ */
+interface Props {
+  name: 'archive' | 'scan' | 'document' | 'route' | 'check' | 'shield' | 'download';
+  class?: string;
+}
+const { name, class: className } = Astro.props;
+
+// Every icon carries `.icon`, and all icon sizing lives in global.css.
+// Astro scopes a component's <style> to that component's own elements, so a
+// rule written next to the markup that *uses* an icon never reaches the <svg>
+// this file renders -- which shipped 200px checkmarks down the middle of the
+// privacy section. A parent's scoped stylesheet cannot size a child component;
+// one unscoped place must own it.
+
+const paths: Record<Props['name'], string> = {
+  archive:
+    '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/>',
+  scan: '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+  document:
+    '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/>',
+  route:
+    '<circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M15.5 5H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H8.5"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  shield: '<path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="M9.5 12l1.8 1.8 3.2-3.6"/>',
+  download: '<path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 20h14"/>',
+};
+---
+
+<svg
+  class:list={['icon', className]}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={paths[name]}
+/>

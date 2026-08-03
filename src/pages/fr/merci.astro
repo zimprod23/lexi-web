@@ -1,0 +1,9 @@
+---
+import Base from '../../layouts/Base.astro';
+import Thanks from '../../components/Thanks.astro';
+import { fr } from '../../i18n/fr';
+---
+
+<Base t={fr} path="/fr/merci/" altPath="/thanks/" title={fr.thanks.title}>
+  <Thanks t={fr} home="/fr/" />
+</Base>

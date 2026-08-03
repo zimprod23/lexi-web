@@ -1,0 +1,52 @@
+---
+import type { Dict } from '../i18n/ar';
+import { site } from '../config';
+import Nav from './Nav.astro';
+import Footer from './Footer.astro';
+import Icon from './Icon.astro';
+
+interface Props {
+  t: Dict;
+  home: string;
+}
+const { t, home } = Astro.props;
+---
+
+<Nav t={t} home={home} />
+
+<main id="main" class="tile tile--dark thanks">
+  <div class="wrap thanks__inner">
+    <span class="plate thanks__plate">
+      <Icon name="check" />
+    </span>
+    <h1 class="display--sm">{t.thanks.title}</h1>
+    <p class="lead">{t.thanks.body}</p>
+    <p class="fine">
+      {t.thanks.note} <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>
+    </p>
+    <a class="btn btn--ghost" href={home}>{t.thanks.back}</a>
+  </div>
+</main>
+
+<Footer t={t} />
+
+<style>
+  /* Fills the viewport so the footer does not ride up under a short page. */
+  .thanks {
+    display: flex;
+    align-items: center;
+    min-block-size: calc(100vh - var(--nav-h));
+  }
+
+  .thanks__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    max-width: 60ch;
+  }
+
+  .thanks__plate {
+    margin-block-end: 4px;
+  }
+</style>

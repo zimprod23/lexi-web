@@ -1,0 +1,71 @@
+---
+/**
+ * The mark, reproduced from the desktop app's LexiLogo.tsx rather than
+ * redrawn: rounded square, gold hairline, gold-faint fill, serif L. A visitor
+ * who installs the product should recognise the icon in their taskbar as the
+ * one they saw on this page.
+ *
+ * Cormorant Garamond is not bundled (no CDN imports), so the wordmark falls
+ * back to Georgia -- also a serif with a high-contrast axis, which keeps the
+ * character even when the exact face is missing.
+ */
+interface Props {
+  size?: number;
+  wordmark?: boolean;
+}
+const { size = 28, wordmark = true } = Astro.props;
+---
+
+<span class="brand">
+  <svg
+    class="brand__mark"
+    width={size}
+    height={size}
+    viewBox="0 0 32 32"
+    fill="none"
+    aria-hidden="true"
+  >
+    <rect
+      x="2"
+      y="2"
+      width="28"
+      height="28"
+      rx="6"
+      fill="rgba(201,168,76,0.12)"
+      stroke="#C9A84C"
+      stroke-width="1.5"></rect>
+    <text
+      x="16"
+      y="22"
+      text-anchor="middle"
+      font-size="16"
+      font-weight="700"
+      font-family="Georgia, 'Times New Roman', serif"
+      fill="#C9A84C">L</text>
+  </svg>
+  {wordmark && <span class="brand__word">Lexi</span>}
+</span>
+
+<style>
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand__mark {
+    flex: none;
+  }
+
+  /* The wordmark stays Latin and LTR in both languages: it is a name, and
+     "Lexi" reversed by the bidi algorithm inside an Arabic sentence would not
+     be the product's name any more. */
+  .brand__word {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    direction: ltr;
+    unicode-bidi: isolate;
+  }
+</style>

@@ -1,0 +1,87 @@
+/* ─── Design tokens ────────────────────────────────────────────────
+ *
+ * The dark half is lifted verbatim from the desktop app's globals.css so the
+ * site and the product cannot drift into looking like two companies. The light
+ * half is new and exists only here: the app is a dark tool used indoors for
+ * hours, this is a page read once, often on a phone, often outdoors. Apple's
+ * light/dark tile alternation (docs/DESIGN.md) needs a light canvas to
+ * alternate with, and the app has none.
+ *
+ * The light surfaces are warm (#FBFAF7, #F2EFE8) rather than Apple's neutral
+ * greys, because they have to sit next to gold without turning it green.
+ */
+:root {
+  /* ── Dark surfaces — from the app, unchanged ───────────────────── */
+  --bg-0: #0B1422;
+  --bg-1: #11203A;
+  --bg-2: #182A47;
+  --bg-3: #1F3354;
+
+  --text-primary: #F0EDE6;
+  --text-secondary: #8FA2B8;
+  --text-tertiary: #5C6F87;
+
+  --gold: #C9A84C;
+  --gold-soft: #B89642;
+  --gold-faint: rgba(201, 168, 76, 0.12);
+
+  /* ── Light surfaces — this repo only ───────────────────────────── */
+  --paper: #FBFAF7;
+  --paper-2: #F2EFE8;
+
+  /* Ink is bg-0. Using the app's darkest surface as the page's text colour is
+   * what makes the two palettes obviously related rather than merely adjacent. */
+  --ink: #0B1422;
+  --ink-muted: #4A5A6E;
+  --ink-faint: #7C8A9B;
+
+  --hairline: rgba(11, 20, 34, 0.10);
+  --hairline-strong: rgba(11, 20, 34, 0.18);
+
+  /* Gold at #C9A84C on paper is ~2:1 — fine as a fill, unreadable as text.
+   * So the accent has two forms: the fill keeps the brand gold with ink on
+   * top (~9:1), and text-weight gold is deepened to clear AA (~6.6:1).
+   * One accent, two legible expressions -- not two accents. */
+  --gold-deep: #7A6018;
+
+  --success: #2F7D57;
+  --warning: #E8A838;
+
+  /* ── Radius ─────────────────────────────────────────────────────
+   * The app runs 4–12px. The page runs rounder: DESIGN.md's pill CTA is the
+   * single strongest "this is the action" signal available without colour. */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 18px;
+  --r-pill: 9999px;
+
+  /* ── Elevation ──────────────────────────────────────────────────
+   * DESIGN.md allows exactly one shadow, under product imagery resting on a
+   * surface. That is --shadow-product, and it is the only one used on a light
+   * canvas. --shadow-card is the hairline substitute for cards, which get a
+   * border rather than a shadow. */
+  --shadow-product: 0 3px 5px rgba(11, 20, 34, 0.05), 0 18px 40px rgba(11, 20, 34, 0.16);
+  --shadow-card: 0 1px 2px rgba(11, 20, 34, 0.04);
+
+  /* ── Type ───────────────────────────────────────────────────────
+   * No CDN imports (CLAUDE.md rule 3), so these are system stacks with a
+   * self-hosted slot reserved. Drop woff2 files into public/fonts/ and the
+   * @font-face blocks in global.css start resolving -- same arrangement the
+   * desktop app uses, so neither repo pretends to bundle fonts it does not. */
+  --font-latin: "Inter", "Inter var", "Segoe UI Variable Text", "Segoe UI",
+    system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-arabic: "Noto Naskh Arabic", "Segoe UI", "Geeza Pro", "Arabic Typesetting",
+    Tahoma, system-ui, sans-serif;
+
+  /* ── Rhythm ─────────────────────────────────────────────────────
+   * DESIGN.md's 80px section padding, made fluid so a phone does not spend a
+   * third of its viewport on air. */
+  --section-y: clamp(56px, 9vw, 104px);
+  --gutter: clamp(20px, 5vw, 40px);
+  --measure: 62ch;
+  --content-max: 1160px;
+  --nav-h: 60px;
+
+  /* One easing for everything that moves. */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}

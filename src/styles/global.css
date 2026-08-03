@@ -1,0 +1,647 @@
+@import './tokens.css';
+
+/* ─── Self-hosted font slots ───────────────────────────────────────
+ * Empty on purpose. No CDN imports (CLAUDE.md rule 3) and no binaries are
+ * committed, so the page runs on system fonts until real woff2 files land in
+ * public/fonts/. Declared here so adding them is a file copy, not a refactor.
+ * `font-display: swap` matters more than usual: the audience is on mobile data
+ * and text must paint before a font arrives.
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-variable.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  src: url('/fonts/noto-naskh-arabic-variable.woff2') format('woff2-variations');
+  font-weight: 400 700;
+  font-display: swap;
+}
+*/
+
+/* ─── Reset ───────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-latin);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Arabic is the primary language, and it is not merely Latin text reversed:
+ * Naskh needs more leading and a slightly larger body size to stay comfortable,
+ * and the tight negative tracking that gives Latin display type its edge
+ * damages Arabic letterforms. Both are undone here rather than never applied,
+ * so the Latin page keeps the cadence DESIGN.md specifies. */
+html[dir='rtl'] body {
+  font-family: var(--font-arabic);
+  font-size: 18px;
+  line-height: 1.95;
+}
+
+html[dir='rtl'] h1,
+html[dir='rtl'] h2,
+html[dir='rtl'] h3,
+html[dir='rtl'] .display {
+  letter-spacing: 0;
+  line-height: 1.45;
+}
+
+img,
+svg,
+picture {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--gold-deep);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* ─── Type scale ───────────────────────────────────────────────────
+ * DESIGN.md's ladder (56 / 40 / 34 / 28 / 21 / 17) made fluid. Weight 500 is
+ * deliberately absent, per the same document: 300 / 400 / 600 / 700 only. */
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.display {
+  font-size: clamp(34px, 6vw, 56px);
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.02em;
+}
+
+.display--sm {
+  font-size: clamp(28px, 4.4vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.lead {
+  font-size: clamp(19px, 2.2vw, 25px);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--ink-muted);
+  max-width: var(--measure);
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+html[dir='rtl'] .eyebrow {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 15px;
+}
+
+.prose {
+  max-width: var(--measure);
+  color: var(--ink-muted);
+}
+
+.fine {
+  font-size: 13.5px;
+  color: var(--ink-faint);
+  line-height: 1.6;
+}
+
+/* ─── Layout ───────────────────────────────────────────────────────── */
+.wrap {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* A tile is a full-bleed band. Sections are separated by the change of surface
+ * colour and nothing else -- no borders, no shadows (DESIGN.md). Each variant
+ * only re-points the same two variables, so anything inside a tile inherits the
+ * right ink without knowing which surface it landed on. */
+.tile {
+  padding-block: var(--section-y);
+  background: var(--tile-bg, var(--paper));
+  color: var(--tile-ink, var(--ink));
+}
+
+.tile--paper {
+  --tile-bg: var(--paper);
+}
+
+.tile--parchment {
+  --tile-bg: var(--paper-2);
+}
+
+.tile--dark {
+  --tile-bg: var(--bg-0);
+  --tile-ink: var(--text-primary);
+}
+
+.tile--dark-2 {
+  --tile-bg: var(--bg-1);
+  --tile-ink: var(--text-primary);
+}
+
+.tile--dark .lead,
+.tile--dark-2 .lead,
+.tile--dark .prose,
+.tile--dark-2 .prose {
+  color: var(--text-secondary);
+}
+
+.tile--dark .eyebrow,
+.tile--dark-2 .eyebrow {
+  color: var(--gold);
+}
+
+.tile--dark .fine,
+.tile--dark-2 .fine {
+  color: var(--text-tertiary);
+}
+
+/* `:not(.btn)` is load-bearing. As `.tile--dark a` this rule is specificity
+ * (0,1,1) and beat `.btn--primary` at (0,1,0), which painted the hero's primary
+ * call to action gold-on-gold -- a button that was there, was clickable, and
+ * showed no text at all. The rule is about links in prose; a button inside a
+ * dark tile is not one. */
+.tile--dark a:not(.btn),
+.tile--dark-2 a:not(.btn) {
+  color: var(--gold);
+}
+
+.stack > * + * {
+  margin-block-start: var(--stack-gap, 20px);
+}
+
+.grid {
+  display: grid;
+  gap: clamp(16px, 2.4vw, 28px);
+}
+
+@media (min-width: 720px) {
+  .grid--2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 720px) and (max-width: 999px) {
+  .grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────────
+ * The pill is the action signal. Press state is scale(0.96) everywhere, per
+ * DESIGN.md's system-wide micro-interaction. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 13px 28px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 140ms var(--ease), background-color 160ms var(--ease),
+    border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn--primary {
+  background: var(--gold);
+  color: var(--bg-0);
+  box-shadow: 0 6px 18px rgba(201, 168, 76, 0.24);
+}
+
+.btn--primary:hover {
+  background: var(--gold-soft);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--gold-deep);
+  border-color: var(--hairline-strong);
+}
+
+.btn--ghost:hover {
+  border-color: var(--gold-deep);
+}
+
+.tile--dark .btn--ghost,
+.tile--dark-2 .btn--ghost {
+  color: var(--text-primary);
+  border-color: rgba(240, 237, 230, 0.28);
+}
+
+.tile--dark .btn--ghost:hover,
+.tile--dark-2 .btn--ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* ─── Cards ────────────────────────────────────────────────────────
+ * Hairline, never a shadow -- the one shadow in the system belongs to product
+ * imagery (DESIGN.md, "Shadow philosophy"). */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: clamp(22px, 3vw, 30px);
+  box-shadow: var(--shadow-card);
+}
+
+.tile--parchment .card {
+  background: var(--paper);
+}
+
+.tile--dark .card,
+.tile--dark-2 .card {
+  background: var(--bg-1);
+  border-color: rgba(240, 237, 230, 0.10);
+  box-shadow: none;
+}
+
+.card h3 {
+  font-size: 21px;
+  line-height: 1.25;
+  margin-block-end: 10px;
+}
+
+.card p {
+  color: var(--ink-muted);
+  font-size: 16px;
+}
+
+.tile--dark .card p,
+.tile--dark-2 .card p {
+  color: var(--text-secondary);
+}
+
+/* The glyph plate. Gold at 12% is the app's --gold-faint, so the marks on the
+ * site and the accents in the product are literally the same value. */
+.plate {
+  display: grid;
+  place-items: center;
+  inline-size: 46px;
+  block-size: 46px;
+  border-radius: var(--r-md);
+  background: var(--gold-faint);
+  color: var(--gold-deep);
+  margin-block-end: 18px;
+}
+
+.tile--dark .plate,
+.tile--dark-2 .plate {
+  color: var(--gold);
+}
+
+/* ─── Icons ────────────────────────────────────────────────────────
+ * All icon sizing lives here, unscoped, and nowhere else. Astro scopes a
+ * component's <style> to its own elements, so a size written beside the markup
+ * that uses an icon silently fails to reach the <svg> inside Icon.astro. The
+ * default below is what makes that failure survivable; the overrides are what
+ * make it unnecessary. */
+.icon {
+  inline-size: 1.3em;
+  block-size: 1.3em;
+  flex: none;
+}
+
+.plate .icon {
+  inline-size: 22px;
+  block-size: 22px;
+}
+
+.strip__mark .icon {
+  inline-size: 15px;
+  block-size: 15px;
+}
+
+.ticks .icon {
+  inline-size: 19px;
+  block-size: 19px;
+  color: var(--gold);
+  margin-block-start: 4px;
+}
+
+.btn .icon {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+/* ─── Product frame ────────────────────────────────────────────────
+ * Holds a real screenshot. Carries the single system shadow because this is
+ * the "product resting on a surface" case the shadow exists for. */
+.frame {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-1);
+  border: 1px solid rgba(240, 237, 230, 0.10);
+  box-shadow: var(--shadow-product);
+}
+
+.frame__bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  background: var(--bg-2);
+  border-block-end: 1px solid rgba(240, 237, 230, 0.08);
+}
+
+.frame__dot {
+  inline-size: 9px;
+  block-size: 9px;
+  border-radius: 50%;
+  background: rgba(240, 237, 230, 0.18);
+}
+
+.frame__body {
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+/* ─── Reveal on scroll ─────────────────────────────────────────────
+ * The hidden state is applied only when the script has run (`.js-reveal` is set
+ * on <html> before first paint). With JS off or the observer unsupported, the
+ * rules below never match and every section is simply visible -- the page must
+ * not depend on animation to be readable. */
+/* 460ms, not the 620ms this started at, and a 55ms stagger rather than 80ms.
+ * Watching a fast scroll is what settled it: anything slower leaves a section
+ * blank at the moment the reader arrives at it, which does not read as elegant
+ * -- it reads as a page that has not loaded, to an audience already unsure
+ * whether the software works. */
+.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 460ms var(--ease), transform 460ms var(--ease);
+  transition-delay: calc(var(--i, 0) * 55ms);
+  /* No `will-change`. Opacity and transform are composited without it, and
+   * declaring it here would hold a layer per revealed element for the life of
+   * the page -- on a low-end laptop that is a real cost paid for an animation
+   * that has already finished. */
+}
+
+.js-reveal [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .btn:active {
+    transform: none;
+  }
+}
+
+/* ─── Nav ──────────────────────────────────────────────────────────── */
+.nav {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 50;
+  block-size: var(--nav-h);
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--bg-0) 88%, transparent);
+  border-block-end: 1px solid rgba(240, 237, 230, 0.08);
+  color: var(--text-primary);
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .nav {
+    backdrop-filter: saturate(160%) blur(14px);
+  }
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  inline-size: 100%;
+}
+
+.nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-primary);
+  text-decoration: none;
+  margin-inline-end: auto;
+}
+
+.nav__mark {
+  inline-size: 26px;
+  block-size: 26px;
+}
+
+.nav__links {
+  display: none;
+  gap: 22px;
+  align-items: center;
+}
+
+@media (min-width: 860px) {
+  .nav__links {
+    display: flex;
+  }
+}
+
+.nav__link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 160ms var(--ease);
+}
+
+.nav__link:hover {
+  color: var(--text-primary);
+}
+
+.nav__cta {
+  min-height: 38px;
+  padding: 8px 18px;
+  font-size: 15px;
+}
+
+/* The language switch is a real link to a real URL, not a client-side toggle:
+ * a commissioner who sends the page to a colleague must send the language they
+ * were reading. */
+.nav__lang {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 7px 13px;
+  border: 1px solid rgba(240, 237, 230, 0.20);
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  transition: border-color 160ms var(--ease);
+}
+
+.nav__lang:hover {
+  border-color: var(--gold);
+}
+
+/* ─── Forms ────────────────────────────────────────────────────────── */
+.field {
+  display: block;
+}
+
+.field__label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-block-end: 8px;
+}
+
+.field__hint {
+  font-weight: 400;
+  color: var(--ink-faint);
+}
+
+.field input,
+.field textarea {
+  inline-size: 100%;
+  padding: 13px 16px;
+  background: var(--paper);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--r-md);
+  font-size: 17px;
+  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--gold-deep);
+  box-shadow: 0 0 0 3px var(--gold-faint);
+}
+
+.field input:invalid:not(:placeholder-shown) {
+  border-color: rgba(232, 92, 92, 0.7);
+}
+
+/* ─── Footer ───────────────────────────────────────────────────────── */
+.footer {
+  background: var(--bg-0);
+  color: var(--text-secondary);
+  padding-block: clamp(40px, 6vw, 64px);
+  font-size: 15px;
+}
+
+.footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--gold);
+}
+
+/* ─── Utilities ────────────────────────────────────────────────────── */
+.center {
+  text-align: center;
+  margin-inline: auto;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Numerals inside Arabic prose get reordered by the bidi algorithm -- "23.7 GB"
+ * renders as "GB 23.7", which makes the page look like it is quoting a figure
+ * it did not mean. Same fix as the desktop app's Quantity component. */
+.q {
+  unicode-bidi: isolate;
+  direction: ltr;
+  display: inline-block;
+}

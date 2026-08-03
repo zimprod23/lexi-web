@@ -1,0 +1,153 @@
+---
+import type { Dict } from '../i18n/ar';
+import { release, site } from '../config';
+import Icon from './Icon.astro';
+
+interface Props {
+  t: Dict;
+  requestHref: string;
+}
+const { t, requestHref } = Astro.props;
+
+// Built from the tag and the asset name rather than stored as a third field:
+// two of the three could otherwise disagree, and the one that would break is
+// the link.
+const assetUrl = release
+  ? `${site.releasesRepo}/releases/download/${release.version}/${release.asset}`
+  : null;
+
+const publishedLabel = release
+  ? new Intl.DateTimeFormat(t.localeTag, { dateStyle: 'long' }).format(new Date(release.published))
+  : '';
+---
+
+<div class="dl">
+  {
+    release && assetUrl ? (
+      <>
+        <div class="dl__head">
+          <h2 class="display--sm">{t.download.title}</h2>
+          <p class="prose">{t.download.needKey}</p>
+        </div>
+
+        <div class="btn-row">
+          <a class="btn btn--primary" href={assetUrl} download>
+            <Icon name="download" />
+            {t.download.button}
+          </a>
+          <a class="btn btn--ghost" href={requestHref}>{t.download.requestInstead}</a>
+        </div>
+
+        <dl class="dl__facts">
+          <div>
+            <dt>{t.download.version}</dt>
+            <dd class="q">{release.version}</dd>
+          </div>
+          <div>
+            <dt>{t.download.size}</dt>
+            <dd class="q">{release.size}</dd>
+          </div>
+          <div>
+            <dt>{t.download.published}</dt>
+            <dd>{publishedLabel}</dd>
+          </div>
+        </dl>
+
+        <div class="dl__verify">
+          <h3>{t.download.checksumTitle}</h3>
+          <p class="fine">{t.download.checksumBody}</p>
+          <code class="dl__cmd">Get-FileHash .\{release.asset} -Algorithm SHA256</code>
+          <code class="dl__hash">{release.sha256}</code>
+          <p class="fine">{t.download.checksumCompare}</p>
+        </div>
+      </>
+    ) : (
+      /* No release published yet. A button that 404s on the page a customer was
+         sent to is worse than no button, and the trial route goes through the
+         form anyway -- the installer does nothing without a key. */
+      <div class="dl__soon">
+        <h2 class="display--sm">{t.download.soonTitle}</h2>
+        <p class="prose">{t.download.soonBody}</p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={requestHref}>{t.download.requestInstead}</a>
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .dl {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .dl__head {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dl__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 40px;
+    margin: 0;
+    padding-block-start: 4px;
+  }
+
+  .dl__facts dt {
+    font-size: 13.5px;
+    color: var(--text-tertiary);
+    margin-block-end: 4px;
+  }
+
+  .dl__facts dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .dl__verify {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px;
+    border: 1px solid rgba(240, 237, 230, 0.10);
+    border-radius: var(--r-lg);
+    background: var(--bg-1);
+  }
+
+  .dl__verify h3 {
+    font-size: 18px;
+  }
+
+  /* Hashes and shell commands are Latin and must not be reordered by the bidi
+     algorithm inside an Arabic page -- a reordered SHA-256 is a wrong hash. */
+  .dl__cmd,
+  .dl__hash {
+    display: block;
+    direction: ltr;
+    unicode-bidi: isolate;
+    text-align: start;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 12px 14px;
+    border-radius: var(--r-sm);
+    background: rgba(11, 20, 34, 0.55);
+    color: var(--text-primary);
+    overflow-x: auto;
+  }
+
+  .dl__hash {
+    word-break: break-all;
+    color: var(--gold);
+  }
+
+  .dl__soon {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+</style>

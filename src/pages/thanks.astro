@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import Thanks from '../components/Thanks.astro';
+import { ar } from '../i18n/ar';
+
+// noindex: this page only makes sense as the destination of a form post, and
+// a search result landing here would thank someone who asked for nothing.
+---
+
+<Base t={ar} path="/thanks/" altPath="/fr/merci/" title={ar.thanks.title}>
+  <Thanks t={ar} home="/" />
+</Base>

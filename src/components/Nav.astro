@@ -1,0 +1,35 @@
+---
+import type { Dict } from '../i18n/ar';
+import Brand from './Brand.astro';
+
+interface Props {
+  t: Dict;
+  /** Home in this language — the brand always returns here. */
+  home: string;
+}
+const { t, home } = Astro.props;
+---
+
+<header class="nav">
+  <div class="wrap nav__inner">
+    <a class="nav__brand" href={home} aria-label={t.nav.home}>
+      <Brand size={26} />
+    </a>
+
+    <nav class="nav__links" aria-label={t.nav.home}>
+      <a class="nav__link" href={`${home}#features`}>{t.nav.features}</a>
+      <a class="nav__link" href={`${home}#how`}>{t.nav.how}</a>
+      <a class="nav__link" href={`${home}#requirements`}>{t.nav.requirements}</a>
+      <a class="nav__link" href={`${home}#download`}>{t.nav.download}</a>
+    </nav>
+
+    <!-- A real link to a real URL, not a client-side toggle: a commissioner
+         who forwards this page to a colleague must forward the language they
+         were reading, and the switch has to work with no JS. -->
+    <a class="nav__lang" href={t.nav.switchHref} lang={t.htmlLang === 'ar' ? 'fr' : 'ar'}>
+      {t.nav.switchTo}
+    </a>
+
+    <a class="btn btn--primary nav__cta" href={`${home}#request`}>{t.nav.cta}</a>
+  </div>
+</header>

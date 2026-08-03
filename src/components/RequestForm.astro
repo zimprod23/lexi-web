@@ -1,0 +1,137 @@
+---
+import type { Dict } from '../i18n/ar';
+import { site } from '../config';
+
+interface Props {
+  t: Dict;
+  /** Where Netlify sends the browser after a successful post, in this language. */
+  thanksHref: string;
+}
+const { t, thanksHref } = Astro.props;
+---
+
+{/*
+  Netlify Forms, chosen over a custom endpoint on the licence API (docs/API.md
+  §2). The API is the machine that mints and revokes every licence; adding a
+  public write path to it -- plus the CORS, rate limiting and abuse handling
+  that path would need -- to collect four fields is the wrong trade. Netlify
+  captures the submission with no server of ours involved at all.
+
+  Both language pages post the same `name`, so submissions arrive in one
+  inbox; only the redirect differs, so a French applicant is not thanked in
+  Arabic.
+*/}
+<form
+  class="req"
+  name={site.formName}
+  method="POST"
+  action={thanksHref}
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+>
+  <input type="hidden" name="form-name" value={site.formName} />
+  <input type="hidden" name="lang" value={t.htmlLang} />
+
+  {/* A bot fills every field it finds; a human never sees this one. Cheap,
+      no third-party script, no cookie. Turnstile slots in beside it when a key
+      exists (see config.ts) -- shipping the widget without one would put a
+      permanently-failing challenge in front of the only form that matters. */}
+  <p class="req__pot">
+    <label>
+      Do not fill this in
+      <input name="bot-field" tabindex="-1" autocomplete="off" />
+    </label>
+  </p>
+
+  <div class="req__grid">
+    <label class="field">
+      <span class="field__label">{t.form.name}</span>
+      <input type="text" name="name" autocomplete="name" required placeholder=" " />
+    </label>
+
+    <label class="field">
+      <span class="field__label">
+        {t.form.office}
+        <span class="field__hint"> — {t.form.officeHint}</span>
+      </span>
+      <input type="text" name="office" autocomplete="organization" required placeholder=" " />
+    </label>
+
+    <label class="field">
+      <span class="field__label">{t.form.email}</span>
+      <input type="email" name="email" autocomplete="email" required placeholder=" " />
+    </label>
+
+    <label class="field">
+      <span class="field__label">
+        {t.form.phone}
+        <span class="field__hint"> ({t.form.phoneHint})</span>
+      </span>
+      {/* inputmode, not type="tel" alone: it raises the numeric keypad on a
+          phone, which is where most of these will be typed. No pattern is
+          enforced -- Moroccan numbers are written a dozen ways and rejecting a
+          valid one costs a customer. */}
+      <input type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder=" " />
+    </label>
+
+    <label class="field req__wide">
+      <span class="field__label">
+        {t.form.message}
+        <span class="field__hint"> ({t.form.messageHint})</span>
+      </span>
+      <textarea name="message" rows="3" placeholder=" "></textarea>
+    </label>
+  </div>
+
+  <div class="req__foot">
+    <button class="btn btn--primary" type="submit">{t.form.submit}</button>
+    <p class="fine req__privacy">{t.form.privacy}</p>
+  </div>
+
+  <p class="fine">
+    {t.form.fallback} <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>
+  </p>
+</form>
+
+<style>
+  .req {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .req__grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  @media (min-width: 720px) {
+    .req__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .req__wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .req__pot {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .req__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .req__privacy {
+    max-width: 46ch;
+    flex: 1 1 260px;
+  }
+</style>

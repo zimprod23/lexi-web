@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.netlify/
+.DS_Store
+*.log
+
+# Nothing secret belongs in this repo (CLAUDE.md rule 1), but an .env would be
+# baked into a static bundle and served to the world, so refuse it outright.
+.env
+.env.*
+!.env.example
