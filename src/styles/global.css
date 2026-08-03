@@ -334,6 +334,30 @@ html[dir='rtl'] .eyebrow {
   box-shadow: none;
 }
 
+/* A 3px lift and a warmer edge. Deliberately smaller than the usual card
+ * hover: these are statements about the product, not clickable things, and a
+ * card that leaps invites a click that leads nowhere. */
+.card {
+  transition: transform 220ms var(--ease), border-color 220ms var(--ease),
+    box-shadow 220ms var(--ease);
+}
+
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--gold) 38%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: border-color 220ms var(--ease);
+  }
+  .card:hover {
+    transform: none;
+  }
+}
+
 .card h3 {
   font-size: 21px;
   line-height: 1.25;
@@ -430,6 +454,8 @@ html[dir='rtl'] .eyebrow {
 }
 
 .frame__body {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 16 / 10;
   display: grid;
   place-items: center;
@@ -437,6 +463,41 @@ html[dir='rtl'] .eyebrow {
   text-align: center;
   color: var(--text-tertiary);
   font-size: 14px;
+}
+
+/* A slow gold sweep across the empty frame. Only the placeholder gets it --
+ * once a real screenshot is passed to AppFrame there is no .frame__body, and a
+ * sheen crawling over a product screenshot would look like a cheap ad. It
+ * exists so three waiting frames read as screens rather than as holes. */
+.frame__body::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    rgba(201, 168, 76, 0.07) 50%,
+    transparent 58%
+  );
+  transform: translateX(-60%);
+  animation: sheen 7s var(--ease) infinite;
+  pointer-events: none;
+}
+
+@keyframes sheen {
+  0%,
+  70% {
+    transform: translateX(-60%);
+  }
+  100% {
+    transform: translateX(60%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame__body::after {
+    animation: none;
+  }
 }
 
 /* ─── Reveal on scroll ─────────────────────────────────────────────
@@ -460,9 +521,90 @@ html[dir='rtl'] .eyebrow {
    * that has already finished. */
 }
 
+/* Directional variants for side-by-side rows: the text arrives from the
+ * inline-start edge and the frame from the inline-end, so the two halves meet
+ * rather than both sliding up. `transform` is not flipped by `dir`, which is
+ * why --flip exists -- in Arabic these must come from the opposite sides or
+ * the motion fights the reading direction. */
+.js-reveal [data-reveal='start'] {
+  transform: translateX(calc(-30px * var(--flip)));
+}
+
+.js-reveal [data-reveal='end'] {
+  transform: translateX(calc(30px * var(--flip)));
+}
+
 .js-reveal [data-reveal].is-in {
   opacity: 1;
   transform: none;
+}
+
+/* ─── Scroll-driven flourishes ─────────────────────────────────────
+ * All of these are CSS-only, behind @supports, and decorative by
+ * construction. No JavaScript is added for any of them, and a browser without
+ * scroll timelines shows a page that is merely less animated -- never one that
+ * is broken or, worse, one stuck mid-animation because a keyframe never ran. */
+
+.progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  /* Reading progress. A landing page asks for scrolling on faith; this says
+     how much is left. 2px, brand gold, above everything. */
+  .progress {
+    display: block;
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    z-index: 60;
+    inline-size: 100%;
+    block-size: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: progress linear;
+    animation-timeline: scroll(root block);
+  }
+
+  html[dir='rtl'] .progress {
+    transform-origin: right center;
+  }
+
+  /* The nav starts nearly transparent over the hero and firms up as soon as
+     content passes beneath it -- the bar earns its background instead of
+     always having one. */
+  .nav {
+    animation: nav-settle linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 140px;
+  }
+}
+
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes nav-settle {
+  from {
+    background-color: rgba(11, 20, 34, 0.30);
+    border-block-end-color: transparent;
+  }
+  to {
+    background-color: rgba(11, 20, 34, 0.92);
+    border-block-end-color: rgba(240, 237, 230, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress {
+    display: none;
+  }
+  .nav {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

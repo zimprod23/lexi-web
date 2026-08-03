@@ -1,0 +1,88 @@
+---
+import type { Dict } from '../i18n/ar';
+import { demoVideo } from '../config';
+
+/**
+ * The demo video. Renders only when `demoVideo` is set in config.ts -- see the
+ * comment there for why a "coming soon" placeholder would be worse than
+ * nothing.
+ *
+ * `preload="none"` plus a poster is the whole performance story: the page
+ * costs one image until someone presses play, which matters when the visitor
+ * is a commissioner on mobile data deciding whether this is worth their time.
+ */
+interface Props {
+  t: Dict;
+}
+const { t } = Astro.props;
+---
+
+{
+  demoVideo && (
+    <section class="tile tile--dark video" id="video">
+      <div class="wrap video__inner">
+        <div class="video__head" data-reveal>
+          <p class="eyebrow">{t.video.eyebrow}</p>
+          <h2 class="display--sm">{t.video.title}</h2>
+          <p class="prose">{t.video.body}</p>
+        </div>
+
+        <div class="frame video__frame" data-reveal style="--i:1">
+          <div class="frame__bar" aria-hidden="true">
+            <span class="frame__dot" />
+            <span class="frame__dot" />
+            <span class="frame__dot" />
+          </div>
+          {/* Native controls on purpose: a custom player is more code to load,
+              more to get wrong with a keyboard, and gives this audience an
+              unfamiliar set of buttons instead of the ones their phone already
+              taught them. */}
+          <video
+            controls
+            preload="none"
+            playsinline
+            poster={demoVideo.poster}
+            aria-label={t.video.play}
+            width="1280"
+            height="720"
+          >
+            <source src={demoVideo.src} type="video/mp4" />
+            {demoVideo.captions && (
+              <track kind="captions" src={demoVideo.captions} srclang={t.htmlLang} default />
+            )}
+          </video>
+        </div>
+
+        <p class="fine video__meta" data-reveal style="--i:2">
+          {t.video.play} · <span class="q">{demoVideo.duration}</span>
+        </p>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .video__inner {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(26px, 4vw, 44px);
+  }
+
+  .video__head {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 52ch;
+  }
+
+  .video__frame video {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    background: var(--bg-0);
+  }
+
+  .video__meta {
+    margin: 0;
+  }
+</style>

@@ -112,6 +112,30 @@ whole go-to-market plan.
       nothing else changes. **This is the largest remaining gap** — three
       captioned empty frames are honest but they are not persuasive.
 
+**Motion, and the rule it follows.** Animation carries the page, but not one
+line of JavaScript was added for it beyond the original reveal observer:
+
+- Scroll reveal, with directional variants — on side-by-side rows the two
+  halves arrive from opposite edges and meet. `transform` is *not* flipped by
+  `dir`, so `--flip` (1 / -1) resolves the direction; without it the motion
+  would fight the reading direction in Arabic.
+- A reading-progress rule, and a nav that earns its background as content
+  passes beneath it. Both are CSS **scroll-driven** animations behind
+  `@supports (animation-timeline: scroll())`. The guard is not politeness: an
+  unsupported browser would otherwise run the keyframes immediately on load and
+  show a full progress bar over an unscrolled page.
+- The gold rule above each step draws itself from the reading edge outward.
+- A slow gold sweep across the *empty* screenshot frames, so three waiting
+  frames read as screens rather than holes. It applies only to the placeholder;
+  a sheen crawling over a real screenshot would look like a cheap ad.
+- Cards lift 3px on hover, and only under `@media (hover: hover)` — deliberately
+  smaller than a typical card hover, because these are statements about the
+  product, not clickable things, and a card that leaps invites a click that
+  leads nowhere.
+
+Every one of them is off under `prefers-reduced-motion: reduce`, and none is
+required for the page to be readable.
+
 **Three defects found by running it, none of which a build would have caught:**
 
 - The hero's primary call to action rendered **gold on gold — a button with no
@@ -182,7 +206,16 @@ whole go-to-market plan.
 - [ ] Pricing page (once pricing exists).
 - [ ] Online purchase. Needs a payment processor and changes the compliance
       picture entirely — deliberately out of scope until trials convert.
-- [ ] A short demo video, hosted locally rather than embedded from YouTube.
+- [~] **A short demo video.** `VideoSection.astro` is built and wired; set
+      `demoVideo` in `src/config.ts` and drop the file into `public/media/`.
+      Self-hosted, never a YouTube embed — an embed breaches the no-CDN rule,
+      puts a tracker on a page aimed at legal professionals, and would need the
+      CSP in `netlify.toml` widened. `preload="none"` + poster means a phone on
+      mobile data pays one image until someone presses play. **Renders nothing
+      while `demoVideo` is null** — a "video coming soon" box on a sales page
+      reads as an unfinished product, and the page already has three waiting
+      screenshot frames. Two minutes, one real dossier end to end, is what the
+      copy promises.
 - [ ] Changelog page fed from `lexi-releases`.
 
 ---

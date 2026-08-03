@@ -94,6 +94,13 @@ export const fr: Dict = {
     ],
   },
 
+  video: {
+    eyebrow: 'Voyez-le fonctionner',
+    title: 'Deux minutes suffisent pour savoir s’il vous convient.',
+    body: 'Un dossier réel, du début à la fin : on le dépose dans le logiciel, on le laisse le lire, on corrige ce qu’il faut, et on en sort un procès-verbal prêt à imprimer.',
+    play: 'Lancer la vidéo',
+  },
+
   showcase: {
     eyebrow: 'À l’intérieur du logiciel',
     items: [

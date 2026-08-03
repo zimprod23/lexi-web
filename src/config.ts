@@ -33,6 +33,33 @@ export interface Release {
  */
 export const release: Release | null = null;
 
+export interface DemoVideo {
+  /** Self-hosted file under public/media/. Never a YouTube embed. */
+  src: string;
+  /** Poster frame. Shown until play; the video itself downloads nothing. */
+  poster: string;
+  /** Rendered next to the play button, e.g. "2:10". */
+  duration: string;
+  /** Optional captions track (VTT) under public/media/. */
+  captions?: string;
+}
+
+/**
+ * The demo video, when one exists.
+ *
+ * Null renders **nothing** -- not a "coming soon" panel. The page already
+ * carries three empty screenshot frames; a fourth empty box promising a video
+ * would read as an unfinished site to someone deciding whether to trust the
+ * software. One config line turns the section on once the file is in
+ * public/media/.
+ *
+ * Self-hosted deliberately. A YouTube embed would breach the no-CDN rule, load
+ * a tracker onto a page aimed at legal professionals, need the CSP in
+ * netlify.toml widened, and cost a phone on mobile data far more than the file
+ * itself. `preload="none"` means the bytes move only when someone presses play.
+ */
+export const demoVideo: DemoVideo | null = null;
+
 export const site = {
   domain: 'lexiarchive.com',
   url: 'https://lexiarchive.com',

@@ -84,4 +84,14 @@
 
   /* One easing for everything that moves. */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* CSS flips layout for `dir`, but it does not flip `transform`. Anything
+   * that slides along the inline axis multiplies by this, so a panel entering
+   * "from the start edge" comes from the left in French and from the right in
+   * Arabic instead of moving against the reading direction. */
+  --flip: 1;
+}
+
+html[dir='rtl'] {
+  --flip: -1;
 }

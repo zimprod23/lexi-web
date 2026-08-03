@@ -6,6 +6,8 @@ import Icon from './Icon.astro';
 import AppFrame from './AppFrame.astro';
 import DownloadPanel from './DownloadPanel.astro';
 import RequestForm from './RequestForm.astro';
+import VideoSection from './VideoSection.astro';
+import { demoVideo } from '../config';
 
 /**
  * The whole page, once. The two routes differ only by the dictionary they hand
@@ -32,7 +34,10 @@ const { t, home, thanksHref } = Astro.props;
       <p class="lead" data-reveal style="--i:2">{t.hero.lead}</p>
       <div class="btn-row" data-reveal style="--i:3">
         <a class="btn btn--primary" href="#request">{t.hero.primary}</a>
-        <a class="btn btn--ghost" href="#features">{t.hero.secondary}</a>
+        {/* Points at the video when there is one to point at, and at the
+            feature cards otherwise -- the promise the button makes has to be
+            one the page can keep. */}
+        <a class="btn btn--ghost" href={demoVideo ? '#video' : '#features'}>{t.hero.secondary}</a>
       </div>
       <p class="fine hero__reassure" data-reveal style="--i:4">{t.hero.reassure}</p>
     </div>
@@ -78,6 +83,9 @@ const { t, home, thanksHref } = Astro.props;
     </div>
   </section>
 
+  <!-- ── The demo video, when one exists ────────────────────────── -->
+  <VideoSection t={t} />
+
   <!-- ── Inside the product ─────────────────────────────────────── -->
   <section class="tile tile--dark-2">
     <div class="wrap">
@@ -87,12 +95,17 @@ const { t, home, thanksHref } = Astro.props;
 
       {
         t.showcase.items.map((item, i) => (
-          <div class:list={['show', i % 2 === 1 && 'show--flip']} data-reveal>
-            <div class="show__text">
+          /* The two halves arrive from opposite edges and meet. Which edge
+             swaps with the row, so the motion always closes toward the centre
+             rather than the pair sliding across each other. */
+          <div class:list={['show', i % 2 === 1 && 'show--flip']}>
+            <div class="show__text" data-reveal={i % 2 === 1 ? 'end' : 'start'}>
               <h3 class="display--sm">{item.title}</h3>
               <p class="prose">{item.body}</p>
             </div>
-            <AppFrame caption={item.caption} />
+            <div class="show__media" data-reveal={i % 2 === 1 ? 'start' : 'end'} style="--i:1">
+              <AppFrame caption={item.caption} />
+            </div>
           </div>
         ))
       }
@@ -349,9 +362,42 @@ const { t, home, thanksHref } = Astro.props;
     }
   }
 
+  /* The gold rule draws itself when the step arrives, from the reading edge
+     outward: left in French, right in Arabic. `transform-origin` takes no
+     logical keyword, so --flip resolves it arithmetically -- 0% when --flip is
+     1, 100% when it is -1. */
   .step {
+    position: relative;
     padding-block-start: 22px;
-    border-block-start: 2px solid var(--gold);
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 2px;
+    background: var(--gold);
+    transform-origin: calc(50% - 50% * var(--flip)) center;
+  }
+
+  /* Scoped stylesheets cannot see the class on <html>, hence :global. Without
+     JavaScript the rule is simply drawn, like any border. */
+  :global(.js-reveal) .step::before {
+    transform: scaleX(0);
+    transition: transform 700ms var(--ease);
+    transition-delay: calc(var(--i, 0) * 55ms + 140ms);
+  }
+
+  :global(.js-reveal) .step.is-in::before {
+    transform: scaleX(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.js-reveal) .step::before {
+      transform: scaleX(1);
+      transition: none;
+    }
   }
 
   .step__num {

@@ -56,6 +56,9 @@ const altLang = t.htmlLang === 'ar' ? 'fr' : 'ar';
   </head>
 
   <body>
+    <!-- Reading progress. Pure CSS (scroll-driven), hidden entirely where
+         scroll timelines are unsupported or motion is reduced. -->
+    <div class="progress" aria-hidden="true"></div>
     <a class="skip" href="#main">{t.nav.home}</a>
     <slot />
 
