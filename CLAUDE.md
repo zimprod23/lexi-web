@@ -79,7 +79,7 @@ src/pages/index.astro          Arabic at the apex
 src/pages/fr/index.astro       French
 ```
 
-### Two rules the build enforces, learned the hard way
+### Four rules, each learned by looking at the rendered page
 
 1. **All icon sizing lives in `global.css`, unscoped.** Astro scopes a
    component's `<style>` to its own elements, so a size written next to the
@@ -89,6 +89,23 @@ src/pages/fr/index.astro       French
    algorithm rendered `(64-bit)` as `(bit-64)`. Either spell the unit in Arabic
    (preferred — it also reads faster for this audience) or isolate it with the
    `.q` class.
+3. **Nothing sticky may be translucent.** A sticky element is in normal flow,
+   so at scroll 0 it sits over the *page* background, not over whatever section
+   follows it. The nav was navy-at-88% over a cream page and rendered grey until
+   you scrolled. Surfaces that overlap on scroll are opaque here.
+4. **Anything that slides along the inline axis multiplies by `--flip`.** CSS
+   mirrors layout for `dir` but never mirrors `transform`, so an untreated
+   `translateX` moves Arabic content against its own reading direction. Same
+   token resolves `transform-origin`, which takes no logical keyword.
+
+### Motion
+
+Scroll reveal is one IntersectionObserver in `Base.astro`; everything else is
+CSS. Scroll-linked effects (progress rule, nav settle) sit behind
+`@supports (animation-timeline: scroll())` — **the guard is load-bearing**, not
+politeness: unsupported browsers would run the keyframes on load and show a
+full progress bar over an unscrolled page. Every animation is disabled under
+`prefers-reduced-motion: reduce`, and none is required to read the page.
 
 Whatever changes, it must stay a static bundle Netlify can serve — no server
 runtime, because there is nothing here worth running a server for.

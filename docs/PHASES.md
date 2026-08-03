@@ -136,7 +136,17 @@ line of JavaScript was added for it beyond the original reveal observer:
 Every one of them is off under `prefers-reduced-motion: reduce`, and none is
 required for the page to be readable.
 
-**Three defects found by running it, none of which a build would have caught:**
+**Four defects found by running it, none of which a build would have caught:**
+
+- **The nav was grey at rest and only looked right once you scrolled.** A
+  sticky header sits in normal flow, so at scroll 0 it occupies its own band
+  with the *page* background behind it — not the hero. The page background is
+  cream, so `rgba(navy, .88)` rendered grey, then turned navy the moment the
+  hero slid underneath. The frosted-glass effect was only ever correct *after*
+  scrolling began, which is backwards. The bar is now solid `--bg-0`: it
+  disappears into the hero at rest and reads as a top bar over the light tiles.
+  `backdrop-filter` went with it — a real GPU cost on the mid-range laptops
+  this audience owns, and something the desktop app bans outright.
 
 - The hero's primary call to action rendered **gold on gold — a button with no
   visible text.** `.tile--dark a` is specificity (0,1,1) and beat
