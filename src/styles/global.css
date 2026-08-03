@@ -571,9 +571,9 @@ html[dir='rtl'] .eyebrow {
     transform-origin: right center;
   }
 
-  /* The nav starts nearly transparent over the hero and firms up as soon as
-     content passes beneath it -- the bar earns its background instead of
-     always having one. */
+  /* The bar is already navy at rest, where it sits against the navy hero and
+     needs no edge. It grows one as soon as content passes beneath it, which is
+     the only moment the separation means anything. */
   .nav {
     animation: nav-settle linear both;
     animation-timeline: scroll(root block);
@@ -589,12 +589,12 @@ html[dir='rtl'] .eyebrow {
 
 @keyframes nav-settle {
   from {
-    background-color: rgba(11, 20, 34, 0.30);
     border-block-end-color: transparent;
+    box-shadow: 0 0 0 rgba(11, 20, 34, 0);
   }
   to {
-    background-color: rgba(11, 20, 34, 0.92);
-    border-block-end-color: rgba(240, 237, 230, 0.08);
+    border-block-end-color: rgba(240, 237, 230, 0.10);
+    box-shadow: 0 6px 20px rgba(11, 20, 34, 0.35);
   }
 }
 
@@ -619,6 +619,19 @@ html[dir='rtl'] .eyebrow {
 }
 
 /* ─── Nav ──────────────────────────────────────────────────────────── */
+/* Opaque, not translucent -- and the reason is worth keeping.
+ *
+ * A sticky header is in normal flow, so at scroll 0 it occupies its own band
+ * with the *page* background behind it, not the hero. The page background is
+ * cream, so a translucent navy bar rendered grey while sitting still and
+ * turned navy the moment the hero slid underneath it. The "frosted glass"
+ * effect was only ever correct once scrolling had started.
+ *
+ * Solid --bg-0 makes the bar vanish into the hero at rest and read as a proper
+ * top bar over the light tiles below, which is also what the desktop app's
+ * TopBar does. It drops backdrop-filter with it -- a real GPU cost on the
+ * mid-range laptops this audience owns, and something the app's own rules ban
+ * outright. */
 .nav {
   position: sticky;
   inset-block-start: 0;
@@ -626,15 +639,9 @@ html[dir='rtl'] .eyebrow {
   block-size: var(--nav-h);
   display: flex;
   align-items: center;
-  background: color-mix(in srgb, var(--bg-0) 88%, transparent);
-  border-block-end: 1px solid rgba(240, 237, 230, 0.08);
+  background: var(--bg-0);
+  border-block-end: 1px solid transparent;
   color: var(--text-primary);
-}
-
-@supports (backdrop-filter: blur(12px)) {
-  .nav {
-    backdrop-filter: saturate(160%) blur(14px);
-  }
 }
 
 .nav__inner {
