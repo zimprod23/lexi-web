@@ -47,6 +47,17 @@
   --success: #2F7D57;
   --warning: #E8A838;
 
+  /* Added when the request form gained a failure state (it posts to the licence
+   * API now, and a server may refuse). Deliberately not --warning: a refused
+   * submission is not a caution, it is the one thing on this page that did not
+   * work. Deep enough to clear AA as text on --paper (~7:1); the faint pair is
+   * spelled out rather than derived with color-mix, because this message is
+   * what a visitor sees when something has already gone wrong and it must not
+   * also depend on a newer CSS feature. */
+  --danger: #A8322A;
+  --danger-faint: rgba(168, 50, 42, 0.09);
+  --danger-line: rgba(168, 50, 42, 0.30);
+
   /* ── Radius ─────────────────────────────────────────────────────
    * The app runs 4–12px. The page runs rounder: DESIGN.md's pill CTA is the
    * single strongest "this is the action" signal available without colour. */

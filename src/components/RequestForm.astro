@@ -1,25 +1,33 @@
 ---
 import type { Dict } from '../i18n/ar';
-import { site } from '../config';
+import { licenseApiUrl, site } from '../config';
 
 interface Props {
   t: Dict;
-  /** Where Netlify sends the browser after a successful post, in this language. */
+  /** Where the browser goes after a successful post, in this language. */
   thanksHref: string;
 }
 const { t, thanksHref } = Astro.props;
 ---
 
 {/*
-  Netlify Forms, chosen over a custom endpoint on the licence API (docs/API.md
-  §2). The API is the machine that mints and revokes every licence; adding a
-  public write path to it -- plus the CORS, rate limiting and abuse handling
-  that path would need -- to collect four fields is the wrong trade. Netlify
-  captures the submission with no server of ours involved at all.
+  Two destinations, one form, and the order matters.
 
-  Both language pages post the same `name`, so submissions arrive in one
-  inbox; only the redirect differs, so a French applicant is not thanked in
-  Arabic.
+  The submission goes to the licence API (`POST /api/public/license-requests`),
+  which writes it into the client registry so that issuing a licence starts in
+  the admin console rather than by retyping four fields out of a third-party
+  inbox. That is docs/API.md's Option B, and it is now built.
+
+  But this form is STILL a real Netlify form, and that is deliberate. The API is
+  a Cloudflare Tunnel to a workstation that is legitimately off sometimes, and a
+  licence request is the single most valuable event on this site. So the script
+  below only *intercepts* the native submission: anything that is not a clear
+  refusal -- an unreachable API, a 5xx, a rate limit -- lets the form submit the
+  way it always did, and the request lands in Netlify's inbox instead of
+  nowhere. With JavaScript off, the same thing happens for the same reason.
+
+  Both language pages post the same `name`, so submissions arrive in one inbox;
+  only the redirect differs, so a French applicant is not thanked in Arabic.
 */}
 <form
   class="req"
@@ -28,6 +36,11 @@ const { t, thanksHref } = Astro.props;
   action={thanksHref}
   data-netlify="true"
   netlify-honeypot="bot-field"
+  data-api={`${licenseApiUrl}/api/public/license-requests`}
+  data-thanks={thanksHref}
+  data-sending={t.form.sending}
+  data-submit={t.form.submit}
+  data-error={t.form.error}
 >
   <input type="hidden" name="form-name" value={site.formName} />
   <input type="hidden" name="lang" value={t.htmlLang} />
@@ -88,10 +101,122 @@ const { t, thanksHref } = Astro.props;
     <p class="fine req__privacy">{t.form.privacy}</p>
   </div>
 
+  {/* Empty until something goes wrong. `aria-live` so a screen reader is told
+      about a failure it never had a chance to see. */}
+  <p class="req__error" role="alert" aria-live="polite" hidden></p>
+
   <p class="fine">
     {t.form.fallback} <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>
   </p>
 </form>
+
+<script>
+  /**
+   * Send the licence request to the API, and fall back to the form's own
+   * submission when that cannot be done.
+   *
+   * The rule the branches encode: **only a refusal stops the request.** A 400
+   * is the server saying "this submission is not usable" -- a bot, or an
+   * address that is not an address -- and retrying it through Netlify would
+   * just move spam into the inbox. Everything else (offline, DNS, CORS, 5xx,
+   * a rate limit, a tunnel that is down because the machine is asleep) is us
+   * failing, not the visitor, and the visitor's request must survive it.
+   *
+   * Configuration travels in data attributes rather than `define:vars` because
+   * the alternative is string-interpolating page data into executable source.
+   * The values here are ours, but the habit is not one to have on the page that
+   * accepts input from strangers -- and the attributes are also what let this
+   * component be rendered twice (both languages) without two copies of the
+   * script disagreeing about where to post.
+   */
+  const REFUSED = 400;
+
+  document.querySelectorAll<HTMLFormElement>('form.req').forEach((form) => {
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const error = form.querySelector<HTMLParagraphElement>('.req__error');
+    const { api, thanks, sending, submit, error: errorText } = form.dataset;
+    if (!api || !thanks) return;
+
+    let inFlight = false;
+
+    form.addEventListener('submit', async (event) => {
+      // A double submit is the failure this guards: the second one arrives
+      // while the first is still open, and two rows for one office is a
+      // reconciliation problem. (The server folds duplicates too -- belt and
+      // braces, because only one of the two can be fixed after the fact.)
+      if (inFlight) {
+        event.preventDefault();
+        return;
+      }
+      event.preventDefault();
+      inFlight = true;
+
+      if (error) error.hidden = true;
+      if (button) {
+        button.disabled = true;
+        button.textContent = sending ?? button.textContent;
+      }
+
+      const fields = new FormData(form);
+      const payload = {
+        name: String(fields.get('name') ?? ''),
+        office: String(fields.get('office') ?? ''),
+        email: String(fields.get('email') ?? ''),
+        phone: String(fields.get('phone') ?? '') || null,
+        message: String(fields.get('message') ?? '') || null,
+        lang: String(fields.get('lang') ?? 'ar'),
+        // Posted under the name the markup uses, so the hidden field and the
+        // schema cannot drift apart.
+        'bot-field': String(fields.get('bot-field') ?? ''),
+      };
+
+      try {
+        const response = await fetch(api, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          window.location.href = thanks;
+          return;
+        }
+
+        if (response.status === REFUSED) {
+          if (error && errorText) {
+            error.textContent = errorText;
+            error.hidden = false;
+          }
+          if (button) {
+            button.disabled = false;
+            button.textContent = submit ?? button.textContent;
+          }
+          inFlight = false;
+          return;
+        }
+
+        // Any other status is the server having a bad day, not a bad request.
+        fallback(form);
+      } catch {
+        // Offline, DNS, CORS, tunnel down. The visitor did nothing wrong and
+        // must not lose their request because of it.
+        fallback(form);
+      }
+    });
+  });
+
+  /**
+   * Submit natively, to Netlify.
+   *
+   * `form.submit()` does not fire a `submit` event, so this cannot re-enter the
+   * handler above -- which is exactly why it is used instead of clicking the
+   * button. The browser then navigates to `action`, the thank-you page, and the
+   * visitor sees the same outcome either way.
+   */
+  function fallback(form: HTMLFormElement) {
+    form.submit();
+  }
+</script>
 
 <style>
   .req {
@@ -133,5 +258,15 @@ const { t, thanksHref } = Astro.props;
   .req__privacy {
     max-width: 46ch;
     flex: 1 1 260px;
+  }
+
+  .req__error {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: var(--r-md);
+    background: var(--danger-faint);
+    border: 1px solid var(--danger-line);
+    color: var(--danger);
+    font-size: 0.92rem;
   }
 </style>

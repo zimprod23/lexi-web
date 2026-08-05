@@ -71,6 +71,28 @@ export const site = {
 } as const;
 
 /**
+ * The licence API, which the request form posts to.
+ *
+ * A request that lands here becomes a row in the client registry, so issuing a
+ * licence starts from the console instead of from retyping four fields out of a
+ * Netlify inbox. Only `POST /api/public/license-requests` is ever called from
+ * this site — see docs/API.md for what must never be.
+ *
+ * **Netlify Forms is still the fallback, and that is the point.** This API is a
+ * Cloudflare Tunnel to a workstation; it is legitimately off sometimes. The
+ * form therefore stays a real Netlify form and the script below only
+ * *intercepts* it, so an unreachable API means a submission captured in the
+ * Netlify inbox rather than a customer told to try later. Nothing about this
+ * site's availability depends on that machine being awake.
+ *
+ * Defaults to production for the same reason the backend's own settings do: the
+ * environment that can set variables (local development) opts out; a deploy
+ * that sets nothing gets something that works.
+ */
+export const licenseApiUrl =
+  import.meta.env.PUBLIC_LICENSE_API_URL ?? 'https://api.lexiarchive.com';
+
+/**
  * Cloudflare Turnstile, when it is turned on. Left empty deliberately: a site
  * key has to be minted in the Cloudflare dashboard, and shipping a widget with
  * no key renders a permanently-failing challenge in front of the one form the

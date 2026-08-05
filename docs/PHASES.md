@@ -12,12 +12,18 @@
 
 ---
 
-## CURRENT STATUS (2026-08-03)
+## CURRENT STATUS (2026-08-04)
 
-**The site is built and runs.** Both languages, all sections, `astro check`
-clean and `npm run build` clean (4 pages). It has been driven in a browser at
-desktop width in Arabic **and** French, which is how the three defects listed
-under Phase 2 were found.
+**The site is built, runs, and is wired to the licence API.** Both languages,
+all sections, `astro check` clean and `npm run build` clean (4 pages). It has
+been driven in a browser at desktop width in Arabic **and** French, which is how
+the three defects listed under Phase 2 were found — and, on 2026-08-04, how all
+three of the form's submission paths were verified against a live backend.
+
+**A licence request is now a row in the client registry**, not a line in a
+third-party inbox: the form posts to `POST /api/public/license-requests` and the
+admin console issues the licence from it. Netlify Forms stayed on as the
+fallback for when that machine is off. See Phase 3.
 
 **Still needed before it can be announced:** real screenshots, a Netlify
 deploy + DNS, and `VITE_LICENSE_REQUEST_URL` set in the desktop app. See
@@ -176,9 +182,22 @@ required for the page to be readable.
       instead of a button that 404s. The installer does nothing without a key
       anyway, so the form is the honest route for V1.
 - [x] **Licence request form** — name, office/city, email, phone, optional
-      message. No CIN, no address. Posts to Netlify Forms; both languages share
-      one form name so submissions land in one inbox, and only the redirect
-      differs so a French applicant is not thanked in Arabic.
+      message. No CIN, no address. Both languages share one form name so
+      submissions land in one inbox, and only the redirect differs so a French
+      applicant is not thanked in Arabic.
+- [x] **Posts to the licence API** (2026-08-04): `POST /api/public/license-requests`
+      on `api.lexiarchive.com`, so a request becomes a row in the client
+      registry and the admin console can issue a licence from it directly —
+      docs/API.md §2, Option B. **Netlify Forms remains the fallback**, and the
+      form is still a real Netlify form: anything other than an outright refusal
+      (offline, 5xx, rate limit, JavaScript off) lets the native submission
+      through. That API is a tunnel to a workstation, so "the machine was
+      asleep" must not be a way to lose a customer.
+- [x] Walked end to end in a browser, both languages, all three paths: `201` →
+      thank-you page and the row appears in the console; honeypot → the French
+      error on the French page with nothing written; API killed → native submit
+      to `/fr/merci/`. Needs `connect-src` in `netlify.toml` — without it the
+      fetch is blocked and every submission silently takes the fallback.
 - [x] Confirmation pages (`/thanks/`, `/fr/merci/`) that set an expectation —
       "within a day or two", what the reply will contain, and where to write if
       it does not arrive.
@@ -188,9 +207,43 @@ required for the page to be readable.
       `src/config.ts` is the slot. **Do not ship the widget without a key**: it
       renders a permanently-failing challenge in front of the one form the
       business depends on.
-- [ ] Set `contactEmail` in `src/config.ts` to a mailbox that actually exists.
-      It currently reads `contact@lexiarchive.com` and is printed in three
-      places — the form fallback, the footer, and both thank-you pages.
+- [ ] **Create `contact@lexiarchive.com`.** `src/config.ts` already names it and
+      it is printed in three places — the form fallback, the footer, and both
+      thank-you pages — but **the mailbox does not exist yet**, so every one of
+      those is currently a dead end.
+
+      *Receiving* is free and takes five minutes: Cloudflare dashboard → the
+      zone → **Email** → Email Routing → forward `contact@` to a real inbox.
+      Cloudflare writes the MX and SPF records itself. MX does not conflict with
+      the apex/`www` records for Netlify or the `api.` CNAME for the tunnel —
+      but if a provider offers to configure DNS "automatically", check what it
+      proposes to delete first.
+
+      *Sending* needs an actual mailbox provider, and it matters more than it
+      looks: **licence keys are delivered by hand from a person's mailbox**
+      (lexi-admin's approve drawer writes the message; a human sends it). A key
+      arriving at a law office from a personal `gmail.com` address reads as
+      phishing — the worst possible first impression for the one email that has
+      to be trusted. Google Workspace (~$6/user/mo) is the no-fiddling answer;
+      Zoho's free tier works but replaces Email Routing, since MX can only point
+      one way.
+
+      Set **SPF, DKIM and DMARC** on whichever is chosen. A licence key in a
+      spam folder is a customer who believes nobody replied, and there is no
+      signal on our side that it happened.
+- [x] **Brand marks wired** (2026-08-05). Nav and footer use the Seal via
+      `Brand.astro`; favicons use the Monogram at tab sizes and the Seal above.
+      Assets in `public/brand/`, generated by `lexi/scripts/extract-brand-png.py`.
+- [x] **Social card added** — `public/og.png`, generated by
+      `scripts/make-og-image.py`. `twitter:card=summary_large_image` had been
+      declared with **no image**, so every share of this site previewed as a
+      blank card. Deliberately language-neutral: both languages are real URLs,
+      and an Arabic card on the French page is worse than no words.
+- [ ] **Widen the audience copy** — see CLAUDE.md → "Who this is for". Eight
+      strings (`title`, `description`, `eyebrow`, `tagline` × both languages)
+      read as if judicial commissioners are the only market. Lead with the
+      universal archive, name the professions explicitly, keep signification as
+      a named module.
 
 ## Phase 4 — Before it is announced  `[ ]`
 

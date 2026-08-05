@@ -179,6 +179,8 @@ export const fr: Dict = {
     message: 'Question ou remarque',
     messageHint: 'facultatif',
     submit: 'Envoyer la demande',
+    sending: 'Envoi en cours…',
+    error: 'Impossible d’envoyer la demande. Vérifiez vos informations et réessayez.',
     privacy:
       'Ces informations servent uniquement à vous répondre et à vous envoyer la clé. Nous ne demandons ni CIN ni adresse.',
     fallback: 'Ou écrivez-nous directement à',

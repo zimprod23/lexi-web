@@ -2,14 +2,17 @@
 
 > What this site needs from the outside world. Read `docs/PHASES.md` first.
 
-**The headline: for V1, this site needs no API at all.** Both jobs — offering
-the installer and receiving a licence request — can be done without a single
-call to the licence server. That is worth preserving, because every public
-endpoint added to `lexi-admin` is new attack surface on the machine that mints
-and revokes every licence the business sells.
+**This site calls exactly one endpoint: `POST /api/public/license-requests`.**
+That is §2's Option B, built on 2026-08-04. Everything else here — the
+installer download, the version indicator — still needs no API at all, and that
+is worth keeping: every public endpoint on `lexi-admin` is new attack surface on
+the machine that mints and revokes every licence the business sells.
 
-Nothing below is implemented. This is a contract to design against, not a
-description of something that exists.
+**Netlify Forms did not go away; it became the fallback.** The form is still a
+real Netlify form and the JavaScript only intercepts it, so an unreachable API
+means a submission captured in the Netlify inbox rather than a lost customer.
+That matters here more than it would elsewhere: the API is a Cloudflare Tunnel
+to a workstation that is legitimately asleep sometimes. See §2.
 
 ---
 
@@ -51,28 +54,12 @@ busy day silently starts showing nothing.
 
 ---
 
-## 2. Licence requests — two options, pick before building the form
+## 2. Licence requests — the API, with Netlify as the fallback
 
-This is the one real decision in this document.
+Built 2026-08-04. This section used to offer two options; the answer is now
+**both, in order**, and the order is the interesting part.
 
-### Option A — Netlify Forms *(recommended for V1)*
-
-Add `data-netlify="true"` to the form. Netlify captures submissions, emails
-them, and shows them in its dashboard. Free tier covers 100 submissions/month.
-
-- **No public write endpoint on the licence API.** Nothing new is exposed on the
-  machine that runs Keygen.
-- No backend code, no CORS, no rate limiting to get right.
-- Cost: submissions live in Netlify rather than the client registry, so issuing
-  a licence means copying details into the admin console by hand.
-
-At the volume where that copying becomes annoying, you have enough customers to
-justify Option B — and enough information to design it properly.
-
-### Option B — a public endpoint on `lexi-admin` *(later)*
-
-Writes straight into the client registry so a request becomes a licence in one
-step.
+### The request
 
 ```http
 POST https://api.lexiarchive.com/api/public/license-requests
@@ -81,10 +68,12 @@ Content-Type: application/json
 {
   "name": "Ahmed El Idrissi",
   "office": "Casablanca — Anfa",
-  "email": "…",
-  "phone": "+212…",
-  "kind": "trial",              // trial | purchase
-  "turnstile_token": "…"        // Cloudflare Turnstile, verified server-side
+  "email": "ahmed@example.ma",
+  "phone": "+212…",             // optional
+  "message": "…",               // optional
+  "lang": "ar",                 // ar | fr — which half of the site
+  "bot-field": "",              // the honeypot, posted as the markup names it
+  "turnstile_token": "…"        // only when a secret is configured server-side
 }
 ```
 
@@ -92,22 +81,58 @@ Content-Type: application/json
 201 { "status": "received", "reference": "REQ-2026-0001" }
 ```
 
-**What it must have before it ships**, none of it optional:
+The answer carries **two fields and no more**. A public endpoint that echoed
+stored data back would be a way to read the customer registry.
 
-- **Turnstile verified server-side.** A token the client claims is valid is not
-  a check. Free, already in the stack, no cookies.
-- **Rate limited per IP and per email**, reusing `core/rate_limit.py` and the
-  `CF-Connecting-IP` resolution already in place.
-- **CORS allowing exactly `https://lexiarchive.com`.** The existing
-  `ScopedCORSMiddleware` denies CORS on `/api/app/*`; a `/api/public/*` scope
-  needs its own rule, not a widening of the admin one.
-- **Its own table**, not `clients`. A request is not a customer until someone
-  approves it, and mixing the two makes "who is actually paying" unanswerable.
-- **No licence issued automatically.** A human decides. Automatic issuance on a
-  public form is a free-licence faucet with a URL.
+### What the browser does with each outcome
 
-**Do not implement Option B just because it is tidier.** It moves a form
-submission from Netlify's problem to your licence server's problem.
+| Outcome | What happens | Why |
+|---|---|---|
+| `201` | Redirect to the thank-you page | Stored in the registry; it appears in the console's Requests queue |
+| `400` | Localised error, form stays filled, **no fallback** | A definite refusal — a bot, or an address that is not an address. Retrying it through Netlify would just move spam into the inbox |
+| `429`, `5xx`, offline, DNS, CORS | **Native submit → Netlify Forms** | Us failing, not the visitor. Their request must survive it |
+| JavaScript off | Native submit → Netlify Forms | Same path, same reason |
+
+**The fallback is the design, not a hedge.** `api.lexiarchive.com` is a
+Cloudflare Tunnel to a workstation; `make off` is a normal thing to run. A
+licence request is the single most valuable event on this site, so the one
+failure it must not have is "the machine was asleep".
+
+> **The endpoint is live** (`lexi-api` rebuilt 2026-08-04): the public host
+> answers `405` to a GET and grants CORS to `https://lexiarchive.com` on the
+> preflight. **The way to tell which path a submission took is the reference
+> number** — one that reached the API is answered `REQ-YYYY-NNNN` and appears in
+> the console's queue; one that fell back exists only in the Netlify inbox. Both
+> are worth checking while the tunnel is not up permanently.
+
+### What the endpoint has, all of it load-bearing
+
+- **Its own table** (`license_requests`), not `clients`. A request is an
+  unverified stranger who filled in a public form; a client is an office a human
+  has looked at. Mixing them makes "who is actually paying" unanswerable.
+- **No licence is issued automatically.** A human approves, in the console.
+  Automatic issuance on a public form is a free-licence faucet with a URL.
+- **Its own CORS scope.** `ScopedCORSMiddleware` grants `PUBLIC_SITE_ORIGINS` on
+  `/api/public/*` and the console's `CORS_ORIGINS` everywhere else. The error to
+  design against runs one way: adding this site to `CORS_ORIGINS` so the form
+  works would also let a script here read the registry out of an admin's browser.
+- **A honeypot, an IP rate limit, and a duplicate window.** A resubmission from
+  one address inside ten minutes returns the *first* reference instead of writing
+  a second row, so a double-click is idempotent.
+- **Turnstile, optional and verified server-side.** Unconfigured, the challenge
+  is simply not enforced. Configured, an *unreachable* Cloudflare is treated as
+  "could not tell" and the submission is accepted — an outage at a third party
+  must not cost a customer their request.
+
+### Config this site needs
+
+`PUBLIC_LICENSE_API_URL` overrides the API base (`src/config.ts`), which is only
+wanted in local development. It defaults to production, so a deploy that sets
+nothing still works.
+
+**`connect-src` in `netlify.toml` names that host.** Without it the browser
+blocks the fetch, every submission silently takes the Netlify path, and nothing
+anywhere says the API is never being reached.
 
 ---
 
@@ -131,6 +156,7 @@ read. Nothing secret may be added.
 
 | Variable | Example | Notes |
 |---|---|---|
+| `PUBLIC_LICENSE_API_URL` | `http://127.0.0.1:8001` | **defaults to `https://api.lexiarchive.com`**; set only for local development. Changing it also means changing `connect-src` in `netlify.toml` |
 | `PUBLIC_DOWNLOAD_URL` | `https://github.com/.../lexi_0.1.0_x64-setup.exe` | versioned, never "latest" |
 | `PUBLIC_DOWNLOAD_SHA256` | `a1b2c3…` | shown next to the link |
 | `PUBLIC_APP_VERSION` | `0.1.0` | keep in step with the download |

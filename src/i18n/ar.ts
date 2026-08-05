@@ -184,6 +184,13 @@ export const ar = {
     message: 'سؤال أو ملاحظة',
     messageHint: 'اختياري',
     submit: 'أرسل الطلب',
+    // Shown while the request is on its way. The button is disabled during
+    // this, so a slow connection cannot become two requests.
+    sending: 'جارٍ الإرسال…',
+    // The only failure a visitor ever sees. A server that is merely unreachable
+    // is not one of them: that case falls back to the form's own submission, so
+    // the request still arrives. This is for a submission the server refused.
+    error: 'تعذّر إرسال الطلب. تحقّق من معلوماتك ثم أعد المحاولة.',
     privacy: 'نستعمل هذه المعلومات للرد عليك وإرسال المفتاح فقط. لا نطلب رقم البطاقة الوطنية ولا العنوان.',
     fallback: 'أو راسلنا مباشرة على',
   },
