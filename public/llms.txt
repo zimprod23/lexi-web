@@ -1,8 +1,8 @@
-# Lexi — ليكسي
+# Lexi (ليكسي)
 
 > Offline, local-first legal archive software for legal professionals in Morocco
 > and North Africa. It stores an office's case files, reads Arabic and French
-> documents, files them, and finds them again in an instant — on the office's own
+> documents, files them, and finds them again in an instant, on the office's own
 > Windows machine, with no cloud, no account, and no internet connection after a
 > one-time activation.
 
@@ -13,10 +13,10 @@ Contact: contact@lexiarchive.com
 
 All legal professionals, not one profession:
 
-- Lawyers — محامون — avocats
-- Notaries and adouls — موثقون وعدول — notaires et adoul
-- Legal consultants — مستشارون قانونيون — conseils juridiques
-- Judicial commissioners — مفوضون قضائيون — commissaires de justice
+- Lawyers · محامون · avocats
+- Notaries and adouls · موثقون وعدول · notaires et adoul
+- Legal consultants · مستشارون قانونيون · conseils juridiques
+- Judicial commissioners · مفوضون قضائيون · commissaires de justice
 
 Judicial commissioners are the segment the workflow was first built against, and
 some features are specific to them (see "Commissioner-specific module" below).
@@ -30,7 +30,7 @@ and the search serve any legal practice.
   an archive of thousands.
 - **Reads the document for you.** Drop in a pleading or a judgment and Lexi
   extracts the parties, dates, court and reference. The user reviews and corrects
-  before anything is saved — the software proposes, the professional decides.
+  before anything is saved. The software proposes, the professional decides.
 - **Arabic and French throughout.** Interface, documents and generated files, in
   both languages. Arabic is right-to-left everywhere, not just translated.
 - **Nothing leaves the machine.** No document is uploaded, no copy is kept by us,
@@ -52,7 +52,7 @@ evidence of diligence. A lawyer will never run a tournée.
   document-reading component, downloaded after installation and skippable.
 - Licensing: per machine, by licence key. Internet is required exactly once, at
   activation; the software runs fully offline afterwards.
-- Price is not published on the site — a licence is requested through the form at
+- Price is not published on the site. A licence is requested through the form at
   https://lexiarchive.com/#request and answered by email.
 - Languages: Arabic (primary) and French.
 - Country: Morocco. Legal vocabulary is Moroccan practice.

@@ -2,20 +2,28 @@
 /**
  * A window frame that holds a real screenshot of the product.
  *
- * `src` is intentionally optional and currently unset everywhere. PHASES.md is
- * explicit that screenshots must be real captures from the seeded demo archive
- * and never mocked, so until those exist the frame renders its caption instead
- * of a drawn imitation of the UI. A picture of an interface we assembled in CSS
- * would be a claim about a screen the customer will not find in the product.
+ * `src` stayed unset for weeks on purpose: PHASES.md is explicit that
+ * screenshots must be real captures from the seeded demo archive and never
+ * mocked, because a picture of an interface we assembled in CSS is a claim about
+ * a screen the customer will not find in the product. Real captures landed
+ * 2026-08-27 (`public/images/`), so the three showcase frames now hold the
+ * archive, the acte generator and the tournee sheet.
  *
- * Drop a PNG into public/shots/ and pass `src` -- nothing else changes.
+ * The caption fallback stays. It is what a frame renders when a shot has not
+ * been taken yet, and deleting it would mean the next new section silently
+ * shows an empty box instead.
  */
 interface Props {
   src?: string;
   alt?: string;
   caption: string;
+  /** Intrinsic pixel size. Reserves the box before the image decodes, so a
+   *  section does not jump as it scrolls into view. Defaults match the app
+   *  window captures in public/images/. */
+  width?: number;
+  height?: number;
 }
-const { src, alt, caption } = Astro.props;
+const { src, alt, caption, width = 1280, height = 800 } = Astro.props;
 ---
 
 <figure class="frame">
@@ -27,7 +35,15 @@ const { src, alt, caption } = Astro.props;
 
   {
     src ? (
-      <img src={src} alt={alt ?? caption} loading="lazy" decoding="async" width="1280" height="800" />
+      <img
+        class="frame__shot"
+        src={src}
+        alt={alt ?? caption}
+        loading="lazy"
+        decoding="async"
+        width={width}
+        height={height}
+      />
     ) : (
       <div class="frame__body">
         <span class="frame__caption">{caption}</span>
@@ -39,6 +55,15 @@ const { src, alt, caption } = Astro.props;
 <style>
   .frame {
     margin: 0;
+  }
+
+  /* The capture fills the frame under the title bar. `block` kills the inline
+     descender gap that would otherwise show a sliver of the frame background
+     under every screenshot. */
+  .frame__shot {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
   }
 
   .frame__caption {

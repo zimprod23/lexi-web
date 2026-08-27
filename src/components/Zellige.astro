@@ -1,0 +1,105 @@
+---
+/**
+ * A zellige starfield, used as a decorative backdrop.
+ *
+ * The mark is the Moroccan **khatim**: the eight-pointed star formed by two
+ * squares rotated 45 degrees against each other, which is the single most
+ * recognisable motif in Moroccan tilework. It is the right ornament for this
+ * product for two reasons that are not decoration. It says *Moroccan* without a
+ * flag, and it is austere geometry rather than illustration, which is what keeps
+ * a page aimed at courts and cabinets from reading like a consumer app.
+ *
+ * Geometry, so nobody has to re-derive it: for a star of circumradius R the two
+ * squares' edges cross at r = (R / sqrt(2)) / cos(22.5deg), i.e. 0.7654 R. Any
+ * other inner radius produces a star that is recognisably not the Moroccan one.
+ *
+ * Inline SVG with a `<pattern>`, not an image file: it is under a kilobyte, it
+ * costs no request on a bad connection (CLAUDE.md property 1), and it inherits
+ * `currentColor` so the same component works on the dark tiles and the light
+ * ones without a second asset.
+ *
+ * `id` is a required prop because a document may hold more than one of these and
+ * SVG pattern ids are global. Two instances sharing an id makes the second one
+ * silently adopt the first one's scale.
+ */
+interface Props {
+  id: string;
+  /** Tile size in px. Larger reads as architecture, smaller as texture. */
+  size?: number;
+  /** 0 to 1. Kept very low: this is a ground, not a pattern the eye reads. */
+  opacity?: number;
+  /**
+   * Where the pattern survives the mask. Full-bleed tilework behind a headline
+   * is wallpaper, and wallpaper is what DESIGN.md's "no decorative gradients"
+   * rule is actually guarding against. So the star field is strongest at one
+   * edge and gone by the time it reaches the copy.
+   */
+  fade?: 'top' | 'bottom' | 'none';
+  class?: string;
+}
+const {
+  id,
+  size = 116,
+  opacity = 0.05,
+  fade = 'top',
+  class: className,
+} = Astro.props;
+
+/* A block-axis fade, deliberately not an inline-axis one: `to bottom` means the
+   same thing in Arabic and French, whereas anything keyed to left/right would
+   have to be flipped for RTL and would fade the wrong half in one language. */
+const masks = {
+  top: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0) 82%)',
+  bottom: 'linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0) 82%)',
+  none: 'none',
+};
+const mask = masks[fade];
+---
+
+<svg
+  class:list={['zellige', className]}
+  aria-hidden="true"
+  focusable="false"
+  style={`--zellige-opacity:${opacity};--zellige-mask:${mask}`}
+>
+  <defs>
+    <pattern id={id} width={size} height={size} patternUnits="userSpaceOnUse">
+      <g
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1"
+        stroke-linejoin="round"
+        transform={`scale(${size / 56})`}
+      >
+        {/* The star, centred in a 56-unit cell with room to breathe. */}
+        <path
+          transform="translate(8 8)"
+          d="M20.00 0.00 L25.86 5.86 L34.14 5.86 L34.14 14.14 L40.00 20.00 L34.14 25.86 L34.14 34.14 L25.86 34.14 L20.00 40.00 L14.14 34.14 L5.86 34.14 L5.86 25.86 L0.00 20.00 L5.86 14.14 L5.86 5.86 L14.14 5.86 Z"
+        />
+        {/* The small square the four neighbouring stars leave between them. In
+            real zellige this gap is never empty, and leaving it empty is what
+            makes a drawn pattern look like a grid of stickers. */}
+        <path d="M28 0 L34 6 L28 12 L22 6 Z" />
+      </g>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill={`url(#${id})`} />
+</svg>
+
+<style>
+  .zellige {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    opacity: var(--zellige-opacity);
+    /* -webkit- first and unprefixed second: Safari still needs the prefix, and
+       a browser that supports neither simply gets the unmasked pattern rather
+       than a blank layer. */
+    -webkit-mask-image: var(--zellige-mask);
+    mask-image: var(--zellige-mask);
+    pointer-events: none;
+    /* Behind content, above the tile background. */
+    z-index: 0;
+  }
+</style>

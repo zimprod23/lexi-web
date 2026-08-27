@@ -16,7 +16,7 @@ export const fr: Dict = {
   localeTag: 'fr-MA',
 
   meta: {
-    title: 'Lexi — l’archive de votre cabinet juridique, sur votre machine, hors ligne',
+    title: 'Lexi : l’archive de votre cabinet juridique, sur votre machine, hors ligne',
     description:
       'Logiciel pour avocats, notaires, adoul et commissaires de justice au Maroc : conserve vos dossiers, lit et retrouve vos pièces en arabe et en français. Hors ligne.',
   },
@@ -60,7 +60,7 @@ export const fr: Dict = {
       {
         icon: 'scan',
         title: 'Il lit la pièce à votre place',
-        body: 'Déposez le المقال ou le jugement : Lexi le lit et en extrait les parties, les dates, le tribunal et la référence. Vous relisez et vous corrigez avant d’enregistrer — la décision finale reste la vôtre.',
+        body: 'Déposez le المقال ou le jugement : Lexi le lit et en extrait les parties, les dates, le tribunal et la référence. Vous relisez et vous corrigez avant d’enregistrer. La décision finale reste la vôtre.',
       },
       {
         icon: 'document',
@@ -108,16 +108,19 @@ export const fr: Dict = {
         title: 'L’archive telle que vous la voyez le matin',
         body: 'Les dossiers classés comme vous les classez, avec l’état de chacun et la date de la prochaine audience. Les échéances proches ressortent d’une autre couleur avant même que vous les cherchiez.',
         caption: 'Écran Archive',
+        shot: '/images/1.png',
       },
       {
         title: 'Le procès-verbal sort déjà rempli',
-        body: 'Vous choisissez le modèle, Lexi le remplit avec les données du dossier : les parties, l’adresse, la date, et l’heure de la signification telle qu’elle a eu lieu. Ce qu’il ne sait pas, il le laisse en pointillés à remplir à la main — il n’invente jamais.',
+        body: 'Vous choisissez le modèle, Lexi le remplit avec les données du dossier : les parties, l’adresse, la date, et l’heure de la signification telle qu’elle a eu lieu. Ce qu’il ne sait pas, il le laisse en pointillés à remplir à la main. Il n’invente jamais.',
         caption: 'Génération d’un procès-verbal',
+        shot: '/images/2.png',
       },
       {
         title: 'La tournée du jour, groupée par quartier',
         body: 'Une feuille avec les noms, les adresses, les références et deux colonnes vides pour écrire. Vous partez avec, vous revenez saisir ce qui s’est passé.',
         caption: 'Feuille de tournée',
+        shot: '/images/3.png',
       },
     ],
   },
@@ -140,8 +143,8 @@ export const fr: Dict = {
     rows: [
       { label: 'Système', value: 'Windows 10 ou 11 (64-bit)' },
       { label: 'Mémoire', value: '8 GB minimum' },
-      { label: 'Disque', value: '15 GB — dont ~9 GB pour la lecture automatique' },
-      { label: 'Carte graphique', value: 'Facultative — sans elle la lecture fonctionne, mais plus lentement' },
+      { label: 'Disque', value: '15 GB, dont ~9 GB pour la lecture automatique' },
+      { label: 'Carte graphique', value: 'Facultative : sans elle la lecture fonctionne, mais plus lentement' },
     ],
     note: 'Les composants de lecture automatique se téléchargent après l’installation, et vous pouvez les ignorer et n’utiliser que l’archive. Le logiciel reste complet et utile sans eux.',
   },
@@ -172,7 +175,7 @@ export const fr: Dict = {
     lead: 'Quatre informations, pas plus. Nous vous envoyons la clé et le lien de téléchargement dans un seul message.',
     name: 'Nom complet',
     office: 'Étude et ville',
-    officeHint: 'Exemple : Cabinet d’avocat — Casablanca',
+    officeHint: 'Exemple : Cabinet d’avocat, Casablanca',
     email: 'Adresse e-mail',
     phone: 'Téléphone',
     phoneHint: 'facultatif',
@@ -194,7 +197,7 @@ export const fr: Dict = {
   },
 
   footer: {
-    tagline: 'L’archive de votre cabinet juridique — sur votre machine, sans internet.',
+    tagline: 'L’archive de votre cabinet juridique, sur votre machine, sans internet.',
     contact: 'Contact',
     rights: 'Tous droits réservés.',
   },

@@ -50,7 +50,7 @@ const altLang = t.htmlLang === 'ar' ? 'fr' : 'ar';
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={t.localeTag.replace('-', '_')} />
     <!-- `summary_large_image` was declared with no image to show, so every share
-         of this site previewed as a blank card — the one thing a person sees
+         of this site previewed as a blank card, which is the one thing a person sees
          before deciding whether to click. The card is deliberately
          language-neutral (mark, name, domain, no sentence): both languages are
          real URLs, and an Arabic card on the French page would be worse than no
@@ -59,7 +59,7 @@ const altLang = t.htmlLang === 'ar' ? 'fr' : 'ar';
     <meta property="og:image" content={new URL('/og.png', site.url).href} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Lexi — lexiarchive.com" />
+    <meta property="og:image:alt" content="Lexi · lexiarchive.com" />
     <meta name="twitter:image" content={new URL('/og.png', site.url).href} />
 
     {
@@ -73,7 +73,7 @@ const altLang = t.htmlLang === 'ar' ? 'fr' : 'ar';
     <meta name="theme-color" content="#0B1422" />
     <!-- Monogram at tab sizes, Seal above: the Seal is an octagon *plus* an
          internal figure, and at 16px that closes into a circle with two blobs.
-         Measured — see lexi/docs/DESIGN.md → Brand assets. -->
+         Measured: see lexi/docs/DESIGN.md, Brand assets. -->
     <link rel="icon" type="image/png" sizes="16x16" href="/brand/monogram-dark-16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/brand/monogram-dark-32.png" />
     <link rel="icon" type="image/png" sizes="64x64" href="/brand/monogram-dark-64.png" />

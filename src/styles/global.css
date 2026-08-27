@@ -170,9 +170,35 @@ html[dir='rtl'] .eyebrow {
  * only re-points the same two variables, so anything inside a tile inherits the
  * right ink without knowing which surface it landed on. */
 .tile {
+  position: relative;
+  overflow: hidden;
   padding-block: var(--section-y);
   background: var(--tile-bg, var(--paper));
   color: var(--tile-ink, var(--ink));
+}
+
+/* Content sits above any decorative backdrop the tile carries. Without this the
+   zellige would paint over the copy, because both are children of the tile and
+   the pattern is the one with a stacking context. */
+.tile > .wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Zellige backdrop ─────────────────────────────────────────────
+ * The colour lives here, unscoped, for the reason the icon block below spells
+ * out: a parent's scoped stylesheet cannot reach inside a child component, so
+ * one unscoped place has to own it. Gold on the dark tiles, ink on the light
+ * ones, and never anything else -- this is a ground, and a second hue would
+ * make it a pattern the eye reads instead of a texture it feels. */
+.tile--dark .zellige,
+.tile--dark-2 .zellige {
+  color: var(--gold);
+}
+
+.tile--paper .zellige,
+.tile--parchment .zellige {
+  color: var(--ink);
 }
 
 .tile--paper {
@@ -437,6 +463,33 @@ html[dir='rtl'] .eyebrow {
   box-shadow: var(--shadow-product);
 }
 
+/* The frames hold real captures as of 2026-08-27, so they became things a
+ * visitor leans toward rather than placeholders to skip. A 4px lift, the gold
+ * edge the cards already use, and a deeper version of the system's single
+ * shadow. No scale: these are screenshots with text in them, and scaling a
+ * raster image blurs the very words that prove the product reads Arabic. */
+.frame {
+  transition: transform 320ms var(--ease), box-shadow 320ms var(--ease),
+    border-color 320ms var(--ease);
+}
+
+@media (hover: hover) {
+  .frame:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+    box-shadow: 0 6px 12px rgba(11, 20, 34, 0.10), 0 28px 56px rgba(11, 20, 34, 0.34);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame {
+    transition: border-color 320ms var(--ease);
+  }
+  .frame:hover {
+    transform: none;
+  }
+}
+
 .frame__bar {
   display: flex;
   align-items: center;
@@ -537,6 +590,53 @@ html[dir='rtl'] .eyebrow {
 .js-reveal [data-reveal].is-in {
   opacity: 1;
   transform: none;
+}
+
+/* ─── Icons draw themselves in ─────────────────────────────────────
+ * A stroke icon is a line drawing, so the honest way to introduce one is to
+ * draw it. `stroke-dashoffset` from a dash longer than any path in the set
+ * means one rule covers every glyph without measuring each one; a path shorter
+ * than the dash simply finishes early, which is invisible at this duration.
+ *
+ * Keyed off the card's own `.is-in`, so the mark draws just after the card it
+ * belongs to has settled rather than competing with it. Unscoped here for the
+ * same reason icon *sizing* is: Icon.astro renders the <svg>, and a scoped
+ * stylesheet beside the markup that uses it cannot reach the shapes inside.
+ *
+ * `.js-reveal` gates the hidden half, so with JavaScript off the icons are
+ * simply drawn -- the page never depends on animation to be complete. */
+.js-reveal .card .plate .icon > *,
+.js-reveal .strip__item .strip__mark .icon > * {
+  stroke-dasharray: 148;
+  stroke-dashoffset: 148;
+}
+
+.js-reveal .card.is-in .plate .icon > *,
+.js-reveal .strip__item.is-in .strip__mark .icon > * {
+  /* 620ms and a 120ms lead, not the 820/200 this started at. Same argument the
+     reveal block above settled: a mark still drawing itself when the reader has
+     arrived at the card reads as a page that has not finished loading, which is
+     the last thing to suggest to someone deciding whether the software works. */
+  animation: icon-draw 620ms var(--ease) forwards;
+  animation-delay: calc(var(--i, 0) * 55ms + 120ms);
+}
+
+@keyframes icon-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Reduced motion gets the finished drawing, not a hidden one. Resetting the
+   dash rather than only disabling the animation is the load-bearing half: kill
+   the animation alone and every icon stays permanently invisible. */
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .card .plate .icon > *,
+  .js-reveal .strip__item .strip__mark .icon > * {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    animation: none;
+  }
 }
 
 /* ─── Scroll-driven flourishes ─────────────────────────────────────

@@ -222,6 +222,52 @@ feature that should have been in the copy.
 
 ---
 
+## Ornament and motion (2026-08-27)
+
+**No em dashes in anything a reader or a crawler sees.** Copy uses a comma, a
+colon or a full stop instead. This covers both dictionaries, the markup, the
+`og:image:alt`, and `llms.txt`; even the HTML comments were reworded, because
+Astro ships them to the browser and `grep` should come back empty. Check with
+`grep -c "—" dist/*.html dist/**/*.html dist/llms.txt` after any copy change.
+
+**`Zellige.astro` is the site's one ornament.** The Moroccan **khatim**, the
+eight-pointed star made by two squares rotated 45 degrees, drawn as an inline
+SVG `<pattern>`. It says *Moroccan* without a flag and it is austere geometry
+rather than illustration, which is what keeps a page aimed at courts from
+reading like a consumer app. Three things about it are load-bearing:
+
+- **The geometry is exact.** For circumradius R the squares' edges cross at
+  `r = (R / sqrt(2)) / cos(22.5deg)`, i.e. `0.7654 R`. Any other inner radius
+  gives a star that is recognisably not the Moroccan one.
+- **It is masked, not full-bleed.** Tilework behind a headline is wallpaper, and
+  wallpaper is what DESIGN.md's "no decorative gradients" rule is really
+  guarding against. The `fade` prop kills the pattern before it reaches the copy.
+  The fade runs on the **block** axis on purpose: `to bottom` means the same
+  thing in both languages, where anything keyed to left/right would fade the
+  wrong half in one of them.
+- **`id` is required** because SVG pattern ids are global. Two instances sharing
+  one makes the second silently adopt the first one's scale.
+
+**Icons draw themselves in** (`global.css`, near the reveal block). A stroke
+icon is a line drawing, so it is introduced by being drawn: one
+`stroke-dashoffset` rule with a dash longer than any path in the set covers
+every glyph without measuring each one. **The reduced-motion branch resets the
+dash, it does not merely stop the animation** -- stopping it alone leaves every
+icon permanently invisible, which is the whole failure mode that branch exists
+to prevent. Timing is 620ms after a 120ms lead, matching the argument the
+reveal system already settled: a mark still drawing when the reader has arrived
+reads as a page that has not loaded.
+
+**The three showcase frames hold real captures** (`public/images/1..3.png`:
+archive, acte generation, tournee), taken from the seeded demo archive as
+PHASES.md requires. `AppFrame`'s caption fallback stays for the next section
+that has no shot yet. **They are Arabic-UI captures on both pages** -- a French
+visitor sees the Arabic interface with the language switch visible in it. That
+is accurate rather than wrong, but French captures would be better, and are the
+obvious next screenshot pass.
+
+---
+
 ## Critical Rules
 
 1. **No secrets, ever.** Everything in a static bundle is readable by anyone who

@@ -7,6 +7,7 @@ import AppFrame from './AppFrame.astro';
 import DownloadPanel from './DownloadPanel.astro';
 import RequestForm from './RequestForm.astro';
 import VideoSection from './VideoSection.astro';
+import Zellige from './Zellige.astro';
 import { demoVideo } from '../config';
 
 /**
@@ -27,6 +28,7 @@ const { t, home, thanksHref } = Astro.props;
 <main id="main">
   <!-- ── Hero ───────────────────────────────────────────────────── -->
   <section class="tile tile--dark hero">
+    <Zellige id="z-hero" size={132} opacity={0.05} fade="top" />
     <div class="hero__aura" aria-hidden="true"></div>
     <div class="wrap hero__inner">
       <p class="eyebrow" data-reveal style="--i:0">{t.hero.eyebrow}</p>
@@ -88,6 +90,7 @@ const { t, home, thanksHref } = Astro.props;
 
   <!-- ── Inside the product ─────────────────────────────────────── -->
   <section class="tile tile--dark-2">
+    <Zellige id="z-showcase" size={150} opacity={0.038} fade="bottom" />
     <div class="wrap">
       <div class="section-head" data-reveal>
         <p class="eyebrow">{t.showcase.eyebrow}</p>
@@ -104,7 +107,7 @@ const { t, home, thanksHref } = Astro.props;
               <p class="prose">{item.body}</p>
             </div>
             <div class="show__media" data-reveal={i % 2 === 1 ? 'start' : 'end'} style="--i:1">
-              <AppFrame caption={item.caption} />
+              <AppFrame src={item.shot} alt={item.title} caption={item.caption} />
             </div>
           </div>
         ))
