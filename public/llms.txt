@@ -1,0 +1,64 @@
+# Lexi — ليكسي
+
+> Offline, local-first legal archive software for legal professionals in Morocco
+> and North Africa. It stores an office's case files, reads Arabic and French
+> documents, files them, and finds them again in an instant — on the office's own
+> Windows machine, with no cloud, no account, and no internet connection after a
+> one-time activation.
+
+Site: https://lexiarchive.com (Arabic) · https://lexiarchive.com/fr/ (French)
+Contact: contact@lexiarchive.com
+
+## Who it is for
+
+All legal professionals, not one profession:
+
+- Lawyers — محامون — avocats
+- Notaries and adouls — موثقون وعدول — notaires et adoul
+- Legal consultants — مستشارون قانونيون — conseils juridiques
+- Judicial commissioners — مفوضون قضائيون — commissaires de justice
+
+Judicial commissioners are the segment the workflow was first built against, and
+some features are specific to them (see "Commissioner-specific module" below).
+They are not the only audience: the archive, the Arabic/French document reading
+and the search serve any legal practice.
+
+## What it does
+
+- **Archive and search.** Every case in one place with its parties, dates and
+  reference. Typing a name or a number finds the file in under a second, across
+  an archive of thousands.
+- **Reads the document for you.** Drop in a pleading or a judgment and Lexi
+  extracts the parties, dates, court and reference. The user reviews and corrects
+  before anything is saved — the software proposes, the professional decides.
+- **Arabic and French throughout.** Interface, documents and generated files, in
+  both languages. Arabic is right-to-left everywhere, not just translated.
+- **Nothing leaves the machine.** No document is uploaded, no copy is kept by us,
+  there is no account and no cloud. Backups are the office's own, to a disk it
+  chooses.
+
+## Commissioner-specific module
+
+Genuinely specific to judicial commissioners, and presented as one module rather
+than as the product: statutory acts (محاضر / actes and procès-verbaux) generated
+from office-editable templates, and signification rounds (جولات التبليغ /
+tournées de signification) planned by neighbourhood and recorded as dated
+evidence of diligence. A lawyer will never run a tournée.
+
+## Practical facts
+
+- Platform: Windows 10 or 11, 64-bit. No server, no IT installation.
+- Memory: 8 GB minimum. Disk: about 15 GB, of which ~9 GB is the optional
+  document-reading component, downloaded after installation and skippable.
+- Licensing: per machine, by licence key. Internet is required exactly once, at
+  activation; the software runs fully offline afterwards.
+- Price is not published on the site — a licence is requested through the form at
+  https://lexiarchive.com/#request and answered by email.
+- Languages: Arabic (primary) and French.
+- Country: Morocco. Legal vocabulary is Moroccan practice.
+
+## What Lexi is not
+
+- Not a web app, not SaaS, and not cloud-hosted. There is nothing to log into.
+- Not a case-management service that stores client data on a vendor's servers.
+- Not available for macOS or Linux today. Windows only.

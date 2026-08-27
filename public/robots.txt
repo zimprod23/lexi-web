@@ -5,6 +5,43 @@
 # allowed to fetch a page before it can read that header. Blocking them here would
 # hide the noindex and leave the URLs indexable by address alone -- the opposite of
 # what the header is for.
+
+# AI crawlers are allowed on purpose, and the choice is worth stating rather than
+# leaving to the default.
+#
+# A legal professional in Morocco increasingly asks an assistant "what software
+# archives my case files offline in Arabic?" instead of typing it into a search
+# box. Being absent from that answer is indistinguishable from not existing. The
+# whole site is public marketing copy about our own product -- there is no client
+# data here and nothing to protect -- so the only thing a refusal would buy is
+# invisibility in the channel this audience is moving to.
+#
+# Named individually rather than covered by the wildcard below, because a policy
+# that matters should be legible instead of inferred. Two kinds are listed: those
+# that gather training data (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended,
+# CCBot, meta-externalagent) and those that fetch a page live to answer a question
+# being asked right now (OAI-SearchBot, ChatGPT-User, Claude-User, PerplexityBot).
+# The second kind is the one that sends real visitors.
+#
+# To reverse this, change a group's `Allow: /` to `Disallow: /`. It takes effect on
+# the next crawl and costs nothing else.
+
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+User-agent: Bytespider
+User-agent: Amazonbot
+Allow: /
+
 User-agent: *
 Allow: /
 

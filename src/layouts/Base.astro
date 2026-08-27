@@ -10,9 +10,17 @@ interface Props {
   /** Path of this page in the OTHER language, for hreflang + canonical. */
   altPath: string;
   path: string;
+  /**
+   * JSON-LD graph for this page, or nothing.
+   *
+   * Opt-in rather than automatic, because the thank-you pages are `noindex`
+   * and describing a page to a crawler that has been told not to index it is
+   * a contradiction the crawler has to resolve.
+   */
+  schema?: object;
 }
 
-const { t, title, description, altPath, path } = Astro.props;
+const { t, title, description, altPath, path, schema } = Astro.props;
 const pageTitle = title ?? t.meta.title;
 const pageDescription = description ?? t.meta.description;
 const canonical = new URL(path, site.url).href;
@@ -53,6 +61,14 @@ const altLang = t.htmlLang === 'ar' ? 'fr' : 'ar';
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Lexi — lexiarchive.com" />
     <meta name="twitter:image" content={new URL('/og.png', site.url).href} />
+
+    {
+      /* Typed facts for search engines and for the answer engines that quote
+         this site without ever sending a visitor to it. `set:html` with
+         JSON.stringify, never a template literal: an apostrophe in the French
+         copy has to reach the crawler as valid JSON. */
+    }
+    {schema && <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />}
 
     <meta name="theme-color" content="#0B1422" />
     <!-- Monogram at tab sizes, Seal above: the Seal is an octagon *plus* an

@@ -16,9 +16,9 @@ export const fr: Dict = {
   localeTag: 'fr-MA',
 
   meta: {
-    title: 'Lexi — l’archive du commissaire de justice, sur votre machine, hors ligne',
+    title: 'Lexi — l’archive de votre cabinet juridique, sur votre machine, hors ligne',
     description:
-      'Logiciel de bureau pour commissaires de justice : conserve vos dossiers et vos pièces, lit les documents en arabe et en français, prépare vos actes et vos procès-verbaux, et organise vos tournées de signification. Tout reste sur votre ordinateur.',
+      'Logiciel pour avocats, notaires, adoul et commissaires de justice au Maroc : conserve vos dossiers, lit et retrouve vos pièces en arabe et en français. Hors ligne.',
   },
 
   nav: {
@@ -33,9 +33,9 @@ export const fr: Dict = {
   },
 
   hero: {
-    eyebrow: 'Pour les commissaires de justice',
+    eyebrow: 'Pour les avocats, notaires, adoul et commissaires de justice',
     title: 'Tous vos dossiers au même endroit, sur votre machine, sans internet.',
-    lead: 'Lexi conserve vos dossiers et vos pièces, lit vos documents en arabe et en français, prépare vos actes et vos procès-verbaux, et organise vos tournées de signification. Tout reste sur votre ordinateur.',
+    lead: 'Lexi conserve vos dossiers et vos pièces, lit vos documents en arabe et en français, et les retrouve en un instant. Pour les commissaires de justice, il prépare aussi les actes, les procès-verbaux et les tournées de signification. Tout reste sur votre ordinateur.',
     primary: 'Demander une licence d’essai',
     secondary: 'Voir ce qu’il fait',
     reassure:
@@ -172,7 +172,7 @@ export const fr: Dict = {
     lead: 'Quatre informations, pas plus. Nous vous envoyons la clé et le lien de téléchargement dans un seul message.',
     name: 'Nom complet',
     office: 'Étude et ville',
-    officeHint: 'Exemple : Étude de signification — Casablanca',
+    officeHint: 'Exemple : Cabinet d’avocat — Casablanca',
     email: 'Adresse e-mail',
     phone: 'Téléphone',
     phoneHint: 'facultatif',
@@ -194,7 +194,7 @@ export const fr: Dict = {
   },
 
   footer: {
-    tagline: 'L’archive du commissaire de justice — sur votre machine, sans internet.',
+    tagline: 'L’archive de votre cabinet juridique — sur votre machine, sans internet.',
     contact: 'Contact',
     rights: 'Tous droits réservés.',
   },

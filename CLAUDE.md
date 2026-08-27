@@ -10,8 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The **public face of Lexi**: `https://lexiarchive.com`. Two jobs, and only two:
 
-1. **Explain the product** to a Moroccan judicial commissioner (مفوض قضائي) well
-   enough that they want to try it.
+1. **Explain the product** to a Moroccan legal professional — a lawyer, notary,
+   adoul or judicial commissioner — well enough that they want to try it.
 2. **Get the installer onto their machine, with a licence key**, in as few steps
    as possible.
 
@@ -24,19 +24,30 @@ licences, clients or Keygen, it belongs in the other repo.
 
 ---
 
-## Who this is for — wider than the copy currently says
+## Who this is for — widened in the copy 2026-08-27
 
 **All legal professionals in Morocco and North Africa**: lawyers (محامون /
 avocats), legal consultants, notaries/adouls, and judicial commissioners
-(مفوضين قضائيين). Stated 2026-08-04.
+(مفوضين قضائيين). Stated 2026-08-04, **carried into the copy 2026-08-27** — the
+decision sat undone for three weeks and shipped to the live site narrow, which is
+the argument for changing strings the day the positioning changes.
 
 Commissioners are the **beachhead, not the ceiling** — the best-converting
-segment and the workflow the product was built against, but the site currently
-reads as if they are the only audience. Eight strings carry that framing:
-`title`, `description`, `eyebrow` and `tagline` in each of `src/i18n/{ar,fr}.ts`.
+segment and the workflow the product was built against. The strings that used to
+read as if they were the only audience were `title`, `description`, `eyebrow` and
+`tagline` in each of `src/i18n/{ar,fr}.ts`; `hero.lead` and `form.officeHint`
+went with them, because a lead that opens on محاضر and a placeholder reading
+«مكتب التبليغ» narrow the door just as effectively as a headline does.
 
-**How to widen without diluting** — vague copy converts worse than specific copy,
-so this is not a find-and-replace:
+**The feature names did NOT change, and must not.** Signification, tournées,
+محاضر and `requis` are real commissioner work; `features.items[3]` and the
+showcase still name them exactly. What changed is that they are now reached
+through "and for judicial commissioners: …" rather than being the first thing
+the page says about itself. Same rule as the desktop app's CLAUDE.md: widen the
+frame, not the feature names.
+
+**How it was widened without diluting** — vague copy converts worse than specific
+copy, so this was not a find-and-replace:
 
 1. **Lead with what is universal** — an offline archive that reads your Arabic
    and French documents, files them, searches them and answers questions about
@@ -166,6 +177,51 @@ Netlify; leave `api.` alone — it is the tunnel.
 
 ---
 
+## Discoverability — search engines and answer engines (2026-08-27)
+
+Two channels, and the second is the one this audience is moving to. A lawyer in
+Casablanca increasingly asks an assistant "ما هو أحسن برنامج لأرشفة ملفات
+المحاماة بدون إنترنت؟" instead of typing it into a search box, and **being absent
+from that answer is indistinguishable from not existing.** The industry calls it
+GEO (Generative Engine Optimization) or AEO (Answer Engine Optimization); it is
+the same job as SEO with a different reader.
+
+What is in place:
+
+- **`src/seo.ts` → JSON-LD** on the two indexable pages: `Organization`,
+  `WebSite`, `SoftwareApplication`. Deliberately **not** on the thank-you pages,
+  which are `noindex` — describing a page to a crawler told not to index it is a
+  contradiction it has to resolve.
+- **The graph is built from the dictionary, never hand-written.** `featureList`
+  and `softwareRequirements` are read out of `t.features.items` and
+  `t.requirements.rows`, so reworded copy cannot leave stale wording in the
+  markup. **No `offers` and no `aggregateRating`** — both are rich-result bait,
+  we have no public price and no reviews, and a fabricated star rating is the
+  kind of thing that costs a domain its standing permanently.
+- **`public/llms.txt`** — a plain-language brief for answer engines: what Lexi
+  is, who it is for (all four professions, in three languages), what it does,
+  the practical facts, and **an explicit "what Lexi is not"** section. That last
+  one is doing the most work: it is what stops a model confidently describing
+  Lexi as a cloud service or as macOS software.
+- **`public/robots.txt` names AI crawlers individually** and allows them, with
+  the reasoning in the file. Training crawlers and live answer-fetchers are
+  listed as two groups because only the second sends visitors. Reversing it is
+  one `Allow:` → `Disallow:` per group.
+- **`public/sitemap.xml`** lists only the two indexable pages, with `xhtml:link`
+  alternates mirroring the `<link rel="alternate">` tags so the two can never
+  disagree about which language lives where. Hand-written: two pages do not earn
+  a dependency that would then need configuring to exclude the other two. **No
+  `lastmod`** — the honest value is the last content change, not the build date,
+  and a build-stamped `lastmod` on unchanged pages teaches a crawler to ignore
+  the field.
+
+**The rule this leaves behind: nothing in the structured data may be a claim the
+page does not already make.** The crawler layer describes the product, it does
+not sell it. Anything added here that is not on the page is either a lie or a
+feature that should have been in the copy.
+
+---
+
 ## Critical Rules
 
 1. **No secrets, ever.** Everything in a static bundle is readable by anyone who
@@ -201,9 +257,21 @@ reasoned about:
   still filled, and nothing written;
 - API killed mid-test → native submit → `/fr/merci/`, i.e. the Netlify inbox.
 
-Still left (see `docs/PHASES.md`): real screenshots, a Netlify deploy + DNS
-(**leave `api.` alone — that record is the tunnel**), a phone check, and setting
-`VITE_LICENSE_REQUEST_URL` in the desktop app.
+**Deployed to Netlify 2026-08-27** — live at `lexiarchive.netlify.app`, all four
+routes 200, every `netlify.toml` header applied. Verified against the running
+deploy rather than the config.
+
+Still left (see `docs/PHASES.md`): real screenshots, **the apex/`www` DNS records
+in Cloudflare** (**leave `api.` alone — that record is the tunnel**), a phone
+check, and setting `VITE_LICENSE_REQUEST_URL` in the desktop app. Until the DNS
+lands, every canonical URL, the sitemap and the JSON-LD `@id`s point at a
+hostname that does not resolve — the site is live at a name nobody will be given.
+
+**Netlify injects markup into the page** — `<meta name="hosting-provider">`, a
+`netlify-deploy` referral meta carrying UTM parameters, and a
+`/.netlify/scripts/hud` script. Same-origin, so the CSP permits it, but it is a
+third-party marketing beacon on a page for legal professionals and it sits
+against Critical Rule 2. Disable it in the Netlify site settings.
 
 The blocking dependency runs the other way from what you would expect: the
 desktop app's `VITE_LICENSE_REQUEST_URL` is still empty, which means **an office

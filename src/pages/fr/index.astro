@@ -2,8 +2,10 @@
 import Base from '../../layouts/Base.astro';
 import Landing from '../../components/Landing.astro';
 import { fr } from '../../i18n/fr';
+import { landingSchema } from '../../seo';
+import { site } from '../../config';
 ---
 
-<Base t={fr} path="/fr/" altPath="/">
+<Base t={fr} path="/fr/" altPath="/" schema={landingSchema(fr, site.url + '/fr/')}>
   <Landing t={fr} home="/fr/" thanksHref="/fr/merci/" />
 </Base>

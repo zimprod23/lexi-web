@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Landing from '../components/Landing.astro';
 import { ar } from '../i18n/ar';
+import { landingSchema } from '../seo';
+import { site } from '../config';
 
 // Arabic sits at the apex, not under /ar/. It is the working language of the
 // audience, so it is the page a shared link opens by default -- French is the
@@ -9,6 +11,6 @@ import { ar } from '../i18n/ar';
 // deliberate.
 ---
 
-<Base t={ar} path="/" altPath="/fr/">
+<Base t={ar} path="/" altPath="/fr/" schema={landingSchema(ar, site.url + '/')}>
   <Landing t={ar} home="/" thanksHref="/thanks/" />
 </Base>
