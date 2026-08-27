@@ -1,0 +1,11 @@
+# lexiarchive.com
+
+# The two thank-you pages are deliberately NOT disallowed here. They are kept out
+# of the index with `X-Robots-Tag: noindex` (netlify.toml), and a crawler has to be
+# allowed to fetch a page before it can read that header. Blocking them here would
+# hide the noindex and leave the URLs indexable by address alone -- the opposite of
+# what the header is for.
+User-agent: *
+Allow: /
+
+Sitemap: https://lexiarchive.com/sitemap.xml

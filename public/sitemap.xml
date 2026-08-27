@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Hand-written rather than generated: the site has two indexable pages, and
+  @astrojs/sitemap would be a dependency that then has to be configured to
+  exclude /thanks/ and /fr/merci/. Add a page, add it here.
+
+  The alternates mirror the <link rel="alternate"> tags in the page head, so the
+  two never disagree about which language lives where.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://lexiarchive.com/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://lexiarchive.com/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://lexiarchive.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://lexiarchive.com/"/>
+  </url>
+  <url>
+    <loc>https://lexiarchive.com/fr/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://lexiarchive.com/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://lexiarchive.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://lexiarchive.com/"/>
+  </url>
+</urlset>
