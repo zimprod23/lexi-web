@@ -257,15 +257,20 @@ reasoned about:
   still filled, and nothing written;
 - API killed mid-test → native submit → `/fr/merci/`, i.e. the Netlify inbox.
 
-**Deployed to Netlify 2026-08-27** — live at `lexiarchive.netlify.app`, all four
-routes 200, every `netlify.toml` header applied. Verified against the running
-deploy rather than the config.
+**Live at `https://lexiarchive.com` 2026-08-27.** Netlify + Cloudflare DNS,
+certificate issued, `www` 301s to the apex. Verified against the running site:
+all four routes plus `robots.txt`, `sitemap.xml` and `llms.txt` return 200, every
+`netlify.toml` header is applied, and the canonical URLs now point at a hostname
+that answers.
 
-Still left (see `docs/PHASES.md`): real screenshots, **the apex/`www` DNS records
-in Cloudflare** (**leave `api.` alone — that record is the tunnel**), a phone
-check, and setting `VITE_LICENSE_REQUEST_URL` in the desktop app. Until the DNS
-lands, every canonical URL, the sitemap and the JSON-LD `@id`s point at a
-hostname that does not resolve — the site is live at a name nobody will be given.
+**The DNS rule that is not guessable, recorded because the zone now holds both
+cases:** the apex and `www` are **grey-cloud (DNS only)** — a proxied record makes
+Cloudflare terminate TLS itself, which blocks Netlify's certificate challenge and
+yields a failed cert or a redirect loop. `api.` is **orange and must stay orange**,
+because a Cloudflare Tunnel requires the proxy. Same zone, opposite answers.
+
+Still left (see `docs/PHASES.md`): real screenshots, a phone check, and setting
+`VITE_LICENSE_REQUEST_URL` in the desktop app **plus a rebuild**.
 
 **Netlify injects markup into the page** — `<meta name="hosting-provider">`, a
 `netlify-deploy` referral meta carrying UTM parameters, and a

@@ -25,9 +25,15 @@ third-party inbox: the form posts to `POST /api/public/license-requests` and the
 admin console issues the licence from it. Netlify Forms stayed on as the
 fallback for when that machine is off. See Phase 3.
 
-**Still needed before it can be announced:** real screenshots, a Netlify
-deploy + DNS, and `VITE_LICENSE_REQUEST_URL` set in the desktop app. See
-Phase 3 and Phase 4.
+**Live at `https://lexiarchive.com` since 2026-08-27** — Netlify, Cloudflare DNS,
+certificate issued, `www` redirecting to the apex. Verified against the running
+site rather than the config: all four routes plus `robots.txt`, `sitemap.xml` and
+`llms.txt` return 200, the CSP and security headers survive, and the canonical
+URLs finally point at a hostname that answers.
+
+**Still needed before it can be announced:** real screenshots, and
+`VITE_LICENSE_REQUEST_URL` set in the desktop app **plus a rebuild** — Vite bakes
+it in, so a running app never picks it up. See Phase 3 and Phase 4.
 
 **Why this exists:** `VITE_LICENSE_REQUEST_URL` in the desktop app is empty,
 so the wizard's licence step and the splash screen's activation card hide the
@@ -89,9 +95,14 @@ whole go-to-market plan.
       (`src/styles/tokens.css`), including the mark itself — `Brand.astro`
       reproduces `LexiLogo.tsx` so the icon on the page is the icon in the
       taskbar.
-- [ ] Netlify site connected to the repo, apex + `www` pointed at it from
-      Cloudflare DNS. **Leave `api.lexiarchive.com` alone** — that record is the
-      tunnel, and repointing it takes the licence server off the air.
+- [x] **Netlify site connected to the repo, apex + `www` pointed at it from
+      Cloudflare DNS** (2026-08-27). `api.lexiarchive.com` untouched — that record
+      is the tunnel, and repointing it takes the licence server off the air.
+      **Both new records are grey-cloud (DNS only) on purpose**: a proxied record
+      makes Cloudflare terminate TLS itself, which blocks Netlify's certificate
+      challenge and produces either a failed cert or a redirect loop. `api.` is
+      the opposite case and must stay proxied — a tunnel requires it. Two records
+      in one zone, two different answers, and the difference is not guessable.
 
 ## Phase 2 — The page  `[~]`
 
