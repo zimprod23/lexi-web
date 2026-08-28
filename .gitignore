@@ -10,3 +10,7 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Local Claude Code config and memory: a per-machine permission allowlist and
+# personal notes, neither of which belongs in a shared repo.
+.claude/
